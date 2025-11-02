@@ -27,7 +27,7 @@ class _FacilityListState extends State<FacilityList> {
           Expanded(
             child: Column(
               children: [
-                TopBar(title: 'Cơ sở vật chất', subtitle: 'Danh sách'),
+                TopBar(title: 'Cơ sở đào tạo', subtitle: 'Danh sách'),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(24.0),
@@ -115,7 +115,7 @@ class _FacilityTableCardState extends State<FacilityTableCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Cơ sở vật chất',
+                  'Cơ sở đào tạo',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -196,7 +196,7 @@ class _FacilityTableCardState extends State<FacilityTableCard> {
                 ? const Center(
               child: Padding(
                 padding: EdgeInsets.all(32.0),
-                child: Text('Không có dữ liệu cơ sở vật chất.'),
+                child: Text('Không có dữ liệu cơ sở đào tạo.'),
               ),
             )
                 : Column(
@@ -228,7 +228,7 @@ class _FacilityTableCardState extends State<FacilityTableCard> {
                           ),
                           columns: const [
                             DataColumn(label: Text('Mã')),
-                            DataColumn(label: Text('Tên cơ sở vật chất')),
+                            DataColumn(label: Text('Tên cơ sở đào tạo')),
                             DataColumn(label: Text('Hành động')),
                           ],
                           rows: _facilityList
@@ -326,7 +326,7 @@ class _FacilityTableCardState extends State<FacilityTableCard> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Xác nhận xóa'),
-        content: const Text('Bạn có chắc chắn muốn xóa cơ sở vật chất này?'),
+        content: const Text('Bạn có chắc chắn muốn xóa cơ sở đào tạo này?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -348,7 +348,7 @@ class _FacilityTableCardState extends State<FacilityTableCard> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Xóa cơ sở vật chất thành công!'),
+              content: Text('Xóa cơ sở đào tạo thành công!'),
               backgroundColor: Colors.green,
             ),
           );

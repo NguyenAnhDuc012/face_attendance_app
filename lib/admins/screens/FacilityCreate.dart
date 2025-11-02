@@ -34,7 +34,7 @@ class _FacilityCreateState extends State<FacilityCreate> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Tạo cơ sở vật chất thành công!'),
+          content: Text('Tạo cơ sở đào tạo thành công!'),
           backgroundColor: Colors.green,
         ),
       );
@@ -46,7 +46,7 @@ class _FacilityCreateState extends State<FacilityCreate> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lỗi khi tạo cơ sở vật chất: $e'),
+          content: Text('Lỗi khi tạo cơ sở đào tạo: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -64,7 +64,7 @@ class _FacilityCreateState extends State<FacilityCreate> {
           Expanded(
             child: Column(
               children: [
-                const TopBar(title: 'Cơ sở vật chất', subtitle: 'Thêm mới'),
+                const TopBar(title: 'Cơ sở đào tạo', subtitle: 'Thêm mới'),
                 Expanded(
                   child: Center(
                     child: ConstrainedBox(
@@ -100,7 +100,7 @@ class _FacilityCreateState extends State<FacilityCreate> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Thêm cơ sở vật chất mới',
+                                  'Thêm cơ sở đào tạo mới',
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineMedium
@@ -111,12 +111,12 @@ class _FacilityCreateState extends State<FacilityCreate> {
                                 TextFormField(
                                   controller: _nameController,
                                   decoration: const InputDecoration(
-                                    labelText: 'Tên cơ sở vật chất',
+                                    labelText: 'Tên cơ sở đào tạo',
                                     prefixIcon: Icon(Icons.business_outlined),
                                     border: OutlineInputBorder(),
                                   ),
                                   validator: (value) => value == null || value.isEmpty
-                                      ? 'Vui lòng nhập tên cơ sở vật chất'
+                                      ? 'Vui lòng nhập tên cơ sở đào tạo'
                                       : null,
                                 ),
                                 const SizedBox(height: 40),
