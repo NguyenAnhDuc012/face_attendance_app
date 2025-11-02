@@ -1,0 +1,119 @@
+// lib/widgets/sidebar.dart
+import 'package:flutter/material.dart';
+
+import '../screens/IntakeList.dart';
+
+class Sidebar extends StatelessWidget {
+  final String currentPage;
+
+  const Sidebar({Key? key, required this.currentPage}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 250,
+      color: const Color(0xFF343A40),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24.0),
+            alignment: Alignment.centerLeft,
+            child: const Text(
+              'Phòng đào tạo',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          _buildNavItem(
+            Icons.dashboard,
+            'Khóa học',
+            'Intake' == currentPage,
+            context,
+          ),
+          _buildNavItem(
+            Icons.category,
+            'Category',
+            'Category' == currentPage,
+            context,
+          ),
+          _buildNavItem(
+            Icons.account_tree,
+            'Sub Category',
+            'Sub Category' == currentPage,
+            context,
+          ),
+          _buildNavItem(
+            Icons.copyright,
+            'Brands',
+            'Brands' == currentPage,
+            context,
+          ),
+          _buildNavItem(
+            Icons.inventory_2,
+            'Products',
+            'Products' == currentPage,
+            context,
+          ),
+          _buildNavItem(
+            Icons.local_shipping,
+            'Shipping',
+            'Shipping' == currentPage,
+            context,
+          ),
+          _buildNavItem(
+            Icons.shopping_cart,
+            'Orders',
+            'Orders' == currentPage,
+            context,
+          ),
+          _buildNavItem(
+            Icons.discount,
+            'Discount',
+            'Discount' == currentPage,
+            context,
+          ),
+          _buildNavItem(Icons.people, 'Users', 'Users' == currentPage, context),
+          _buildNavItem(Icons.pages, 'Pages', 'Pages' == currentPage, context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(
+    IconData icon,
+    String title,
+    bool isActive,
+    BuildContext context,
+  ) {
+    return Container(
+      color: isActive ? Colors.black.withOpacity(0.3) : Colors.transparent,
+      child: ListTile(
+        leading: Icon(icon, color: isActive ? Colors.white : Colors.grey[400]),
+        title: Text(
+          title,
+          style: TextStyle(color: isActive ? Colors.white : Colors.grey[400]),
+        ),
+        onTap: () {
+          switch (title) {
+            case 'Khóa học':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const IntakeList()),
+              );
+              break;
+            case 'Category':
+              // Navigator.pushReplacement(... tương tự)
+              break;
+            case 'Products':
+              // Navigator.pushReplacement(... tương tự)
+              break;
+            // thêm case khác nếu cần
+          }
+        },
+      ),
+    );
+  }
+}
