@@ -1,0 +1,68 @@
+import '../models/Semester.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+const String API_BASE_URL = 'http://127.0.0.1:8000/api';
+
+class SemesterService {
+  Future<Map<String, dynamic>> fetchSemesters({int page = 1}) async {
+    final response =
+    await http.get(Uri.parse('$API_BASE_URL/semesters?page=$page'));
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = json.decode(response.body);
+      List<dynamic> data = body['data'];
+      List<Semester> semesters =
+      data.map((item) => Semester.fromJson(item)).toList();
+
+      return {
+        'semesters': semesters,
+        'current_page': body['current_page'],
+        'last_page': body['last_page'],
+      };
+    } else {
+      throw Exception('Failed to load semesters');
+    }
+  }
+
+  Future<Semester> createSemester(
+      {required String name, required int academicYearId}) async {
+    final response = await http.post(
+      Uri.parse('$API_BASE_URL/semesters'),
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: jsonEncode({'name': name, 'academic_year_id': academicYearId}),
+    );
+
+    if (response.statusCode == 201) {
+      return Semester.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to create semester');
+    }
+  }
+
+  Future<void> updateSemester(
+      {required int id,
+        required String name,
+        required int academicYearId}) async {
+    final response = await http.put(
+      Uri.parse('$API_BASE_URL/semesters/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'name': name, 'academic_year_id': academicYearId}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update semester');
+    }
+  }
+
+  Future<void> deleteSemester(int id) async {
+    final response = await http.delete(
+      Uri.parse('$API_BASE_URL/semesters/$id'),
+      headers: {'Accept': 'application/json'},
+    );
+
+    if (response.statusCode != 204) {
+      throw Exception('Failed to delete semester');
+    }
+  }
+}

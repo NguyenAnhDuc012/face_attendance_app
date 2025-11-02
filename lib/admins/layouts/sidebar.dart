@@ -3,6 +3,7 @@ import 'package:face_attendance_app/admins/screens/AcademicYearList.dart';
 import 'package:face_attendance_app/admins/screens/FacilityList.dart';
 import 'package:face_attendance_app/admins/screens/FacultyList.dart';
 import 'package:face_attendance_app/admins/screens/RoomList.dart';
+import 'package:face_attendance_app/admins/screens/SemesterList.dart';
 import 'package:face_attendance_app/admins/screens/StudentClassList.dart';
 import 'package:face_attendance_app/admins/screens/StudentList.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,12 @@ class Sidebar extends StatelessWidget {
             context,
           ),
           _buildNavItem(
+            Icons.discount,
+            'Học kỳ',
+            'Semester' == currentPage,
+            context,
+          ),
+          _buildNavItem(
             Icons.account_tree,
             'Cơ sở đào tạo',
             'Facility' == currentPage,
@@ -75,12 +82,7 @@ class Sidebar extends StatelessWidget {
             'Student' == currentPage,
             context,
           ),
-          _buildNavItem(
-            Icons.discount,
-            'Discount',
-            'Discount' == currentPage,
-            context,
-          ),
+
           _buildNavItem(Icons.people, 'Users', 'Users' == currentPage, context),
           _buildNavItem(Icons.pages, 'Pages', 'Pages' == currentPage, context),
         ],
@@ -149,6 +151,14 @@ class Sidebar extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const StudentList(),
+                ),
+              );
+              break;
+            case 'Học kỳ':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SemesterList(),
                 ),
               );
               break;
