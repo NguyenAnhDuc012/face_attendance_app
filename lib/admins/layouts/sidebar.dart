@@ -1,4 +1,6 @@
 // lib/widgets/sidebar.dart
+import 'package:face_attendance_app/admins/screens/AcademicYearList.dart';
+import 'package:face_attendance_app/admins/screens/FacilityList.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/IntakeList.dart';
@@ -35,14 +37,14 @@ class Sidebar extends StatelessWidget {
           ),
           _buildNavItem(
             Icons.category,
-            'Category',
-            'Category' == currentPage,
+            'Năm học',
+            'Academic Year' == currentPage,
             context,
           ),
           _buildNavItem(
             Icons.account_tree,
-            'Sub Category',
-            'Sub Category' == currentPage,
+            'Cơ sở vật chất',
+            'Facility' == currentPage,
             context,
           ),
           _buildNavItem(
@@ -104,11 +106,17 @@ class Sidebar extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const IntakeList()),
               );
               break;
-            case 'Category':
-              // Navigator.pushReplacement(... tương tự)
+            case 'Năm học':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const AcademicYearList()),
+              );
               break;
-            case 'Products':
-              // Navigator.pushReplacement(... tương tự)
+            case 'Cơ sở vật chất':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const FacilityList()),
+              );
               break;
             // thêm case khác nếu cần
           }

@@ -5,28 +5,24 @@ import 'dart:convert';
 const String API_BASE_URL = 'http://127.0.0.1:8000/api';
 
 class IntakeService {
-  Future<List<Intake>> fetchIntakes() async {
+  Future<Map<String, dynamic>> fetchIntakes({int page = 1}) async {
     try {
-      final response = await http.get(Uri.parse('$API_BASE_URL/intakes'));
+      final response = await http.get(Uri.parse('$API_BASE_URL/intakes?page=$page'));
 
       if (response.statusCode == 200) {
-        // API của bạn trả về một đối tượng phân trang (Paginate)
-        // Chúng ta cần lấy mảng 'data' bên trong nó
         Map<String, dynamic> body = json.decode(response.body);
-        List<dynamic> data = body['data']; // <-- Lấy mảng 'data'
+        List<dynamic> data = body['data'];
+        List<Intake> intakes = data.map((item) => Intake.fromJson(item)).toList();
 
-        // Chuyển đổi mỗi item JSON trong mảng 'data' thành một object Intake
-        List<Intake> intakes = data
-            .map((dynamic item) => Intake.fromJson(item))
-            .toList();
-        return intakes;
+        return {
+          'intakes': intakes,
+          'current_page': body['current_page'],
+          'last_page': body['last_page'],
+        };
       } else {
-        throw Exception(
-          'Failed to load intakes (Status ${response.statusCode})',
-        );
+        throw Exception('Failed to load intakes (Status ${response.statusCode})');
       }
     } catch (e) {
-      // Xử lý lỗi (ví dụ: không kết nối được server)
       throw Exception('Failed to connect to API: $e');
     }
   }

@@ -3,20 +3,20 @@ import 'package:flutter/material.dart';
 import '../layouts/app_footer.dart';
 import '../layouts/sidebar.dart';
 import '../layouts/top_bar.dart';
-import '../models/Intake.dart';
-import '../services/IntakeService.dart';
-import 'IntakeCreate.dart';
-import 'IntakeEdit.dart';
+import '../models/Facility.dart';
+import '../services/FacilityService.dart';
+import 'FacilityCreate.dart';
+import 'FacilityEdit.dart';
 
-class IntakeList extends StatefulWidget {
-  const IntakeList({Key? key}) : super(key: key);
+class FacilityList extends StatefulWidget {
+  const FacilityList({Key? key}) : super(key: key);
 
   @override
-  State<IntakeList> createState() => _IntakeListState();
+  State<FacilityList> createState() => _FacilityListState();
 }
 
-class _IntakeListState extends State<IntakeList> {
-  final String _currentPage = 'Intake';
+class _FacilityListState extends State<FacilityList> {
+  final String _currentPage = 'Facility';
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +26,12 @@ class _IntakeListState extends State<IntakeList> {
           Sidebar(currentPage: _currentPage),
           Expanded(
             child: Column(
-              children: const [
-                TopBar(title: 'Khóa học', subtitle: 'Danh sách'),
+              children: [
+                TopBar(title: 'Cơ sở vật chất', subtitle: 'Danh sách'),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.all(24.0),
-                    child: IntakesTableCard(),
+                    padding: const EdgeInsets.all(24.0),
+                    child: FacilityTableCard(),
                   ),
                 ),
                 AppFooter(),
@@ -44,17 +44,17 @@ class _IntakeListState extends State<IntakeList> {
   }
 }
 
-class IntakesTableCard extends StatefulWidget {
-  const IntakesTableCard({Key? key}) : super(key: key);
+class FacilityTableCard extends StatefulWidget {
+  const FacilityTableCard({Key? key}) : super(key: key);
 
   @override
-  State<IntakesTableCard> createState() => _IntakesTableCardState();
+  State<FacilityTableCard> createState() => _FacilityTableCardState();
 }
 
-class _IntakesTableCardState extends State<IntakesTableCard> {
-  final IntakeService _intakeService = IntakeService();
+class _FacilityTableCardState extends State<FacilityTableCard> {
+  final FacilityService _facilityService = FacilityService();
 
-  List<Intake> _intakesList = [];
+  List<Facility> _facilityList = [];
   int _currentPage = 1;
   int _lastPage = 1;
   bool _isLoading = false;
@@ -69,10 +69,10 @@ class _IntakesTableCardState extends State<IntakesTableCard> {
     setState(() => _isLoading = true);
 
     try {
-      var result = await _intakeService.fetchIntakes(page: page);
+      var result = await _facilityService.fetchFacilities(page: page);
 
       setState(() {
-        _intakesList = result['intakes'];
+        _facilityList = result['facilities'];
         _currentPage = result['current_page'];
         _lastPage = result['last_page'];
         _isLoading = false;
@@ -115,7 +115,7 @@ class _IntakesTableCardState extends State<IntakesTableCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Khóa học',
+                  'Cơ sở vật chất',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -138,7 +138,7 @@ class _IntakesTableCardState extends State<IntakesTableCard> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const IntakeCreate(),
+                        builder: (context) => const FacilityCreate(),
                       ),
                     ).then((_) => _fetchData(page: 1)); // Tải lại trang đầu
                   },
@@ -187,122 +187,112 @@ class _IntakesTableCardState extends State<IntakesTableCard> {
             // Bảng dữ liệu
             _isLoading
                 ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(32.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                : _intakesList.isEmpty
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+                : _facilityList.isEmpty
                 ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(32.0),
-                      child: Text('Không có dữ liệu khóa học.'),
-                    ),
-                  )
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Text('Không có dữ liệu cơ sở vật chất.'),
+              ),
+            )
                 : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Sửa lỗi bảng co hẹp bằng LayoutBuilder + ConstrainedBox
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          return SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                minWidth: constraints.maxWidth,
-                              ),
-                              child: DataTable(
-                                horizontalMargin: 24.0,
-                                columnSpacing: 32.0,
-                                headingRowColor: MaterialStateProperty.all(
-                                  Colors.grey[100],
-                                ),
-                                headingTextStyle: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                  fontSize: 14,
-                                ),
-                                border: TableBorder.all(
-                                  color: Colors.grey[300]!,
-                                  width: 1,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                columns: const [
-                                  DataColumn(label: Text('Mã')),
-                                  DataColumn(label: Text('Tên khóa')),
-                                  DataColumn(label: Text('Năm bắt đầu')),
-                                  DataColumn(label: Text('Năm kết thúc')),
-                                  DataColumn(label: Text('Hành động')),
-                                ],
-                                rows: _intakesList
-                                    .asMap()
-                                    .entries
-                                    .map(
-                                      (entry) =>
-                                          _buildDataRow(entry.value, entry.key),
-                                    )
-                                    .toList(),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Pagination controls
-                      Container(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(color: Colors.grey[300]!),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minWidth: constraints.maxWidth,
+                        ),
+                        child: DataTable(
+                          horizontalMargin: 24.0,
+                          columnSpacing: 32.0,
+                          headingRowColor: MaterialStateProperty.all(
+                            Colors.grey[100],
                           ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back_ios, size: 16),
-                              onPressed: _currentPage > 1
-                                  ? () => _goToPage(_currentPage - 1)
-                                  : null,
-                            ),
-                            Text(
-                              'Trang $_currentPage / $_lastPage',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                              ),
-                              onPressed: _currentPage < _lastPage
-                                  ? () => _goToPage(_currentPage + 1)
-                                  : null,
-                            ),
+                          headingTextStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                            fontSize: 14,
+                          ),
+                          border: TableBorder.all(
+                            color: Colors.grey[300]!,
+                            width: 1,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          columns: const [
+                            DataColumn(label: Text('Mã')),
+                            DataColumn(label: Text('Tên cơ sở vật chất')),
+                            DataColumn(label: Text('Hành động')),
                           ],
+                          rows: _facilityList
+                              .asMap()
+                              .entries
+                              .map(
+                                (entry) => _buildDataRow(entry.value, entry.key),
+                          )
+                              .toList(),
                         ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Pagination controls
+                Container(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: Colors.grey[300]!),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios, size: 16),
+                        onPressed: _currentPage > 1
+                            ? () => _goToPage(_currentPage - 1)
+                            : null,
+                      ),
+                      Text(
+                        'Trang $_currentPage / $_lastPage',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onPressed: _currentPage < _lastPage
+                            ? () => _goToPage(_currentPage + 1)
+                            : null,
                       ),
                     ],
                   ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  DataRow _buildDataRow(Intake intake, int index) {
-    // Tạo màu xen kẽ
+  DataRow _buildDataRow(Facility facility, int index) {
     final Color rowColor = index.isEven ? Colors.white : Colors.grey[50]!;
 
     return DataRow(
       color: MaterialStateProperty.all(rowColor),
       cells: [
-        DataCell(Text(intake.id.toString())),
-        DataCell(Text(intake.name)),
-        DataCell(Text(intake.startYear.toString())),
-        DataCell(Text(intake.expectedGraduationYear.toString())),
+        DataCell(Text(facility.id.toString())),
+        DataCell(Text(facility.name)),
         DataCell(
           Row(
             children: [
@@ -313,22 +303,16 @@ class _IntakesTableCardState extends State<IntakesTableCard> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => IntakeEdit(intake: intake),
+                      builder: (context) => FacilityEdit(facility: facility),
                     ),
-                  ).then(
-                    (_) => _fetchData(page: _currentPage),
-                  ); // Tải lại trang hiện tại
+                  ).then((_) => _fetchData(page: _currentPage));
                 },
               ),
               const SizedBox(width: 8),
               IconButton(
-                icon: const Icon(
-                  Icons.delete_outline,
-                  color: Colors.red,
-                  size: 20,
-                ),
+                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
                 tooltip: 'Xóa',
-                onPressed: () => _handleDelete(intake.id),
+                onPressed: () => _handleDelete(facility.id),
               ),
             ],
           ),
@@ -342,7 +326,7 @@ class _IntakesTableCardState extends State<IntakesTableCard> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Xác nhận xóa'),
-        content: const Text('Bạn có chắc chắn muốn xóa khóa học này?'),
+        content: const Text('Bạn có chắc chắn muốn xóa cơ sở vật chất này?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -358,14 +342,13 @@ class _IntakesTableCardState extends State<IntakesTableCard> {
 
     if (confirm == true) {
       try {
-        await _intakeService.deleteIntake(id);
-        // Tải lại trang hiện tại để đảm bảo dữ liệu đồng bộ
+        await _facilityService.deleteFacility(id);
         _fetchData(page: _currentPage);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Xóa khóa học thành công!'),
+              content: Text('Xóa cơ sở vật chất thành công!'),
               backgroundColor: Colors.green,
             ),
           );
