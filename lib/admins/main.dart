@@ -1,3 +1,4 @@
+import 'package:face_attendance_app/admins/screens/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
@@ -29,7 +30,7 @@ class AdminDashboardApp extends StatelessWidget {
           PointerDeviceKind.stylus,
         },
       ),
-      home: const IntakeList(),
+      home: const LoginPage(),
     );
   }
 }

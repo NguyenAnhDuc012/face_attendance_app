@@ -1,7 +1,9 @@
 // lib/widgets/sidebar.dart
 import 'package:face_attendance_app/admins/screens/AcademicYearList.dart';
 import 'package:face_attendance_app/admins/screens/FacilityList.dart';
+import 'package:face_attendance_app/admins/screens/FacultyList.dart';
 import 'package:face_attendance_app/admins/screens/RoomList.dart';
+import 'package:face_attendance_app/admins/screens/StudentClassList.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/IntakeList.dart';
@@ -49,6 +51,12 @@ class Sidebar extends StatelessWidget {
             context,
           ),
           _buildNavItem(
+            Icons.local_shipping,
+            'Khoa',
+            'Faculty' == currentPage,
+            context,
+          ),
+          _buildNavItem(
             Icons.copyright,
             'Phòng học',
             'Room' == currentPage,
@@ -56,14 +64,8 @@ class Sidebar extends StatelessWidget {
           ),
           _buildNavItem(
             Icons.inventory_2,
-            'Products',
-            'Products' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.local_shipping,
-            'Shipping',
-            'Shipping' == currentPage,
+            'Lớp học',
+            'StudentClass' == currentPage,
             context,
           ),
           _buildNavItem(
@@ -110,7 +112,9 @@ class Sidebar extends StatelessWidget {
             case 'Năm học':
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const AcademicYearList()),
+                MaterialPageRoute(
+                  builder: (context) => const AcademicYearList(),
+                ),
               );
               break;
             case 'Cơ sở đào tạo':
@@ -119,13 +123,26 @@ class Sidebar extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const FacilityList()),
               );
               break;
+            case 'Khoa':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const FacultyList()),
+              );
+              break;
             case 'Phòng học':
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const RoomList()),
               );
               break;
-
+            case 'Lớp học':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StudentClassList(),
+                ),
+              );
+              break;
           }
         },
       ),
