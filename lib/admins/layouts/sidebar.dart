@@ -4,6 +4,7 @@ import 'package:face_attendance_app/admins/screens/FacilityList.dart';
 import 'package:face_attendance_app/admins/screens/FacultyList.dart';
 import 'package:face_attendance_app/admins/screens/RoomList.dart';
 import 'package:face_attendance_app/admins/screens/StudentClassList.dart';
+import 'package:face_attendance_app/admins/screens/StudentList.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/IntakeList.dart';
@@ -70,8 +71,8 @@ class Sidebar extends StatelessWidget {
           ),
           _buildNavItem(
             Icons.shopping_cart,
-            'Orders',
-            'Orders' == currentPage,
+            'Sinh viên',
+            'Student' == currentPage,
             context,
           ),
           _buildNavItem(
@@ -140,6 +141,14 @@ class Sidebar extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const StudentClassList(),
+                ),
+              );
+              break;
+            case 'Sinh viên':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StudentList(),
                 ),
               );
               break;
