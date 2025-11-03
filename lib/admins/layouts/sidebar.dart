@@ -1,5 +1,6 @@
 // lib/widgets/sidebar.dart
 import 'package:face_attendance_app/admins/screens/AcademicYearList.dart';
+import 'package:face_attendance_app/admins/screens/DepartmentList.dart';
 import 'package:face_attendance_app/admins/screens/FacilityList.dart';
 import 'package:face_attendance_app/admins/screens/FacultyList.dart';
 import 'package:face_attendance_app/admins/screens/RoomList.dart';
@@ -65,6 +66,12 @@ class Sidebar extends StatelessWidget {
             context,
           ),
           _buildNavItem(
+            Icons.local_shipping,
+            'Bộ môn',
+            'Department' == currentPage,
+            context,
+          ),
+          _buildNavItem(
             Icons.copyright,
             'Phòng học',
             'Room' == currentPage,
@@ -82,9 +89,6 @@ class Sidebar extends StatelessWidget {
             'Student' == currentPage,
             context,
           ),
-
-          _buildNavItem(Icons.people, 'Users', 'Users' == currentPage, context),
-          _buildNavItem(Icons.pages, 'Pages', 'Pages' == currentPage, context),
         ],
       ),
     );
@@ -159,6 +163,14 @@ class Sidebar extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const SemesterList(),
+                ),
+              );
+              break;
+            case 'Bộ môn':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DepartmentList(),
                 ),
               );
               break;
