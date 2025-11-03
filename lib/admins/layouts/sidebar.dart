@@ -7,6 +7,7 @@ import 'package:face_attendance_app/admins/screens/FacultyList.dart';
 import 'package:face_attendance_app/admins/screens/LecturerList.dart';
 import 'package:face_attendance_app/admins/screens/MajorList.dart';
 import 'package:face_attendance_app/admins/screens/RoomList.dart';
+import 'package:face_attendance_app/admins/screens/ScheduleList.dart';
 import 'package:face_attendance_app/admins/screens/SemesterList.dart';
 import 'package:face_attendance_app/admins/screens/StudentClassList.dart';
 import 'package:face_attendance_app/admins/screens/StudentList.dart';
@@ -129,6 +130,13 @@ class Sidebar extends StatelessWidget {
                   'Course' == currentPage,
                   context,
                 ),
+                _buildNavItem(
+                  Icons.shopping_cart,
+                  'Thời khóa biểu',
+                  'Schedule' == currentPage,
+                  context,
+                ),
+
               ],
             ),
           ),
@@ -241,6 +249,12 @@ class Sidebar extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const CourseList()),
+              );
+              break;
+            case 'Thời khóa biểu':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ScheduleList()),
               );
               break;
           }
