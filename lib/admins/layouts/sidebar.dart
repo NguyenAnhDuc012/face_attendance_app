@@ -4,6 +4,7 @@ import 'package:face_attendance_app/admins/screens/DepartmentList.dart';
 import 'package:face_attendance_app/admins/screens/FacilityList.dart';
 import 'package:face_attendance_app/admins/screens/FacultyList.dart';
 import 'package:face_attendance_app/admins/screens/LecturerList.dart';
+import 'package:face_attendance_app/admins/screens/MajorList.dart';
 import 'package:face_attendance_app/admins/screens/RoomList.dart';
 import 'package:face_attendance_app/admins/screens/SemesterList.dart';
 import 'package:face_attendance_app/admins/screens/StudentClassList.dart';
@@ -78,6 +79,12 @@ class Sidebar extends StatelessWidget {
             Icons.local_shipping,
             'Bộ môn',
             'Department' == currentPage,
+            context,
+          ),
+          _buildNavItem(
+            Icons.local_shipping,
+            'Ngành học',
+            'Major' == currentPage,
             context,
           ),
           _buildNavItem(
@@ -217,6 +224,14 @@ class Sidebar extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const SubjectList(),
+                ),
+              );
+              break;
+            case 'Ngành học':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MajorList(),
                 ),
               );
               break;
