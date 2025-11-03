@@ -8,6 +8,7 @@ import 'package:face_attendance_app/admins/screens/RoomList.dart';
 import 'package:face_attendance_app/admins/screens/SemesterList.dart';
 import 'package:face_attendance_app/admins/screens/StudentClassList.dart';
 import 'package:face_attendance_app/admins/screens/StudentList.dart';
+import 'package:face_attendance_app/admins/screens/StudyPeriodList.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/IntakeList.dart';
@@ -52,6 +53,12 @@ class Sidebar extends StatelessWidget {
             Icons.discount,
             'Học kỳ',
             'Semester' == currentPage,
+            context,
+          ),
+          _buildNavItem(
+            Icons.discount,
+            'Đợt học tập',
+            'StudyPeriod' == currentPage,
             context,
           ),
           _buildNavItem(
@@ -187,6 +194,14 @@ class Sidebar extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const LecturerList(),
+                ),
+              );
+              break;
+            case 'Đợt học tập':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StudyPeriodList(),
                 ),
               );
               break;
