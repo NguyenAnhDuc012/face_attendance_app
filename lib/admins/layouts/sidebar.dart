@@ -1,5 +1,6 @@
 // lib/widgets/sidebar.dart
 import 'package:face_attendance_app/admins/screens/AcademicYearList.dart';
+import 'package:face_attendance_app/admins/screens/CourseList.dart';
 import 'package:face_attendance_app/admins/screens/DepartmentList.dart';
 import 'package:face_attendance_app/admins/screens/FacilityList.dart';
 import 'package:face_attendance_app/admins/screens/FacultyList.dart';
@@ -39,85 +40,98 @@ class Sidebar extends StatelessWidget {
               ),
             ),
           ),
-          _buildNavItem(
-            Icons.dashboard,
-            'Khóa học',
-            'Intake' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.category,
-            'Năm học',
-            'Academic Year' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.discount,
-            'Học kỳ',
-            'Semester' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.discount,
-            'Đợt học tập',
-            'StudyPeriod' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.account_tree,
-            'Cơ sở đào tạo',
-            'Facility' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.local_shipping,
-            'Khoa',
-            'Faculty' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.local_shipping,
-            'Bộ môn',
-            'Department' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.local_shipping,
-            'Ngành học',
-            'Major' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.local_shipping,
-            'Môn học',
-            'Subject' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.copyright,
-            'Phòng học',
-            'Room' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.inventory_2,
-            'Lớp học',
-            'StudentClass' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.shopping_cart,
-            'Sinh viên',
-            'Student' == currentPage,
-            context,
-          ),
-          _buildNavItem(
-            Icons.shopping_cart,
-            'Giảng viên',
-            'Lecturer' == currentPage,
-            context,
-          ),
 
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildNavItem(
+                  Icons.dashboard,
+                  'Khóa học',
+                  'Intake' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.category,
+                  'Năm học',
+                  'Academic Year' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.discount,
+                  'Học kỳ',
+                  'Semester' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.discount,
+                  'Đợt học tập',
+                  'StudyPeriod' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.account_tree,
+                  'Cơ sở đào tạo',
+                  'Facility' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.local_shipping,
+                  'Khoa',
+                  'Faculty' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.local_shipping,
+                  'Bộ môn',
+                  'Department' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.local_shipping,
+                  'Ngành học',
+                  'Major' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.local_shipping,
+                  'Môn học',
+                  'Subject' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.copyright,
+                  'Phòng học',
+                  'Room' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.inventory_2,
+                  'Lớp học',
+                  'StudentClass' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.shopping_cart,
+                  'Sinh viên',
+                  'Student' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.shopping_cart,
+                  'Giảng viên',
+                  'Lecturer' == currentPage,
+                  context,
+                ),
+                _buildNavItem(
+                  Icons.shopping_cart,
+                  'Lớp học phần',
+                  'Course' == currentPage,
+                  context,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -182,33 +196,25 @@ class Sidebar extends StatelessWidget {
             case 'Sinh viên':
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const StudentList(),
-                ),
+                MaterialPageRoute(builder: (context) => const StudentList()),
               );
               break;
             case 'Học kỳ':
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const SemesterList(),
-                ),
+                MaterialPageRoute(builder: (context) => const SemesterList()),
               );
               break;
             case 'Bộ môn':
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const DepartmentList(),
-                ),
+                MaterialPageRoute(builder: (context) => const DepartmentList()),
               );
               break;
             case 'Giảng viên':
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const LecturerList(),
-                ),
+                MaterialPageRoute(builder: (context) => const LecturerList()),
               );
               break;
             case 'Đợt học tập':
@@ -222,17 +228,19 @@ class Sidebar extends StatelessWidget {
             case 'Môn học':
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const SubjectList(),
-                ),
+                MaterialPageRoute(builder: (context) => const SubjectList()),
               );
               break;
             case 'Ngành học':
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const MajorList(),
-                ),
+                MaterialPageRoute(builder: (context) => const MajorList()),
+              );
+              break;
+            case 'Lớp học phần':
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const CourseList()),
               );
               break;
           }
