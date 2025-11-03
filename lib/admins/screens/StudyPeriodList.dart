@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../layouts/app_footer.dart';
 import '../layouts/sidebar.dart';
 import '../layouts/top_bar.dart';
@@ -92,6 +93,17 @@ class _StudyPeriodTableCardState extends State<StudyPeriodTableCard> {
     }
   }
 
+  // HÀM HELPER MỚI: Định dạng ngày
+  String _formatDateForDisplay(String? serviceDate) {
+    if (serviceDate == null || serviceDate.isEmpty) return 'N/A';
+    try {
+      DateTime date = DateTime.parse(serviceDate);
+      return DateFormat('dd/MM/yyyy').format(date);
+    } catch (e) {
+      return 'Lỗi Ngày';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -106,7 +118,6 @@ class _StudyPeriodTableCardState extends State<StudyPeriodTableCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header + Button thêm mới
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -138,7 +149,6 @@ class _StudyPeriodTableCardState extends State<StudyPeriodTableCard> {
             ),
             const SizedBox(height: 24),
 
-            // Search (Tạm thời vô hiệu hóa)
             Align(
               alignment: Alignment.centerRight,
               child: SizedBox(
@@ -204,11 +214,15 @@ class _StudyPeriodTableCardState extends State<StudyPeriodTableCard> {
                             width: 1,
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          // CẬP NHẬT CỘT
                           columns: const [
                             DataColumn(label: Text('Mã')),
                             DataColumn(label: Text('Tên đợt')),
                             DataColumn(label: Text('Học kỳ')),
                             DataColumn(label: Text('Năm học')),
+                            DataColumn(label: Text('Ngày BĐ')),
+                            DataColumn(label: Text('Ngày KT')),
+                            DataColumn(label: Text('Trạng thái')),
                             DataColumn(label: Text('Hành động')),
                           ],
                           rows: _studyPeriodList
@@ -262,6 +276,7 @@ class _StudyPeriodTableCardState extends State<StudyPeriodTableCard> {
     );
   }
 
+  // CẬP NHẬT HÀNG
   DataRow _buildDataRow(StudyPeriod studyPeriod, int index) {
     final Color rowColor = index.isEven ? Colors.white : Colors.grey[50]!;
 
@@ -272,13 +287,31 @@ class _StudyPeriodTableCardState extends State<StudyPeriodTableCard> {
         ? '${studyPeriod.semester!.academicYear!.startYear} - ${studyPeriod.semester!.academicYear!.endYear}'
         : 'N/A';
 
+    // Định dạng ngày
+    final String startDate = _formatDateForDisplay(studyPeriod.startDate);
+    final String endDate = _formatDateForDisplay(studyPeriod.endDate);
+
     return DataRow(
       color: MaterialStateProperty.all(rowColor),
       cells: [
         DataCell(Text(studyPeriod.id.toString())),
         DataCell(Text(studyPeriod.name)),
-        DataCell(Text(semesterName)), // Hiển thị tên học kỳ
-        DataCell(Text(academicYearText)), // Hiển thị năm học
+        DataCell(Text(semesterName)),
+        DataCell(Text(academicYearText)),
+        DataCell(Text(startDate)),
+        DataCell(Text(endDate)),
+        // Trạng thái
+        DataCell(
+          Chip(
+            label: Text(
+              studyPeriod.isActive ? 'Hoạt động' : 'Không',
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: studyPeriod.isActive ? Colors.green : Colors.grey,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+            labelStyle: const TextStyle(fontSize: 12),
+          ),
+        ),
         DataCell(Row(
           children: [
             IconButton(

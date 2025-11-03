@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // <-- 1. Thêm import
 import '../layouts/app_footer.dart';
 import '../layouts/sidebar.dart';
 import '../layouts/top_bar.dart';
@@ -91,6 +92,21 @@ class _SemesterTableCardState extends State<SemesterTableCard> {
       _fetchData(page: page);
     }
   }
+
+  // --- 2. Thêm hàm helper định dạng ngày ---
+  /// Định dạng chuỗi ngày YYYY-MM-DD sang DD/MM/YYYY
+  String _formatDateForDisplay(String? serviceDate) {
+    if (serviceDate == null || serviceDate.isEmpty) return 'N/A';
+    try {
+      // Parse chuỗi từ server
+      DateTime date = DateTime.parse(serviceDate);
+      // Định dạng lại để hiển thị
+      return DateFormat('dd/MM/yyyy').format(date);
+    } catch (e) {
+      return 'Lỗi Ngày'; // Trả về nếu định dạng không đúng
+    }
+  }
+  // ------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -211,10 +227,14 @@ class _SemesterTableCardState extends State<SemesterTableCard> {
                             width: 1,
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          // --- 3. Cập nhật cột ---
                           columns: const [
                             DataColumn(label: Text('Mã')),
                             DataColumn(label: Text('Tên học kỳ')),
                             DataColumn(label: Text('Năm học')),
+                            DataColumn(label: Text('Ngày BĐ')), // <-- MỚI
+                            DataColumn(label: Text('Ngày KT')), // <-- MỚI
+                            DataColumn(label: Text('Trạng thái')), // <-- MỚI
                             DataColumn(label: Text('Hành động')),
                           ],
                           rows: _semesterList
@@ -268,19 +288,39 @@ class _SemesterTableCardState extends State<SemesterTableCard> {
     );
   }
 
+  // --- 4. Cập nhật hàng ---
   DataRow _buildDataRow(Semester semester, int index) {
     final Color rowColor = index.isEven ? Colors.white : Colors.grey[50]!;
+
     // Hiển thị năm học (ví dụ: "2023 - 2024")
     final String academicYearText = semester.academicYear != null
         ? '${semester.academicYear!.startYear} - ${semester.academicYear!.endYear}'
         : 'N/A';
+
+    // Định dạng ngày
+    final String startDate = _formatDateForDisplay(semester.startDate);
+    final String endDate = _formatDateForDisplay(semester.endDate);
 
     return DataRow(
       color: MaterialStateProperty.all(rowColor),
       cells: [
         DataCell(Text(semester.id.toString())),
         DataCell(Text(semester.name)),
-        DataCell(Text(academicYearText)), // Hiển thị năm học
+        DataCell(Text(academicYearText)),
+        DataCell(Text(startDate)), // <-- MỚI
+        DataCell(Text(endDate)),   // <-- MỚI
+        // Trạng thái
+        DataCell( // <-- MỚI
+          Chip(
+            label: Text(
+              semester.isActive ? 'Hoạt động' : 'Không',
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: semester.isActive ? Colors.green : Colors.grey,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+            labelStyle: const TextStyle(fontSize: 12),
+          ),
+        ),
         DataCell(Row(
           children: [
             IconButton(

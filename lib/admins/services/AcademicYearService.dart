@@ -1,4 +1,3 @@
-// services/AcademicYearService.dart
 import '../models/AcademicYear.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -46,6 +45,9 @@ class AcademicYearService {
   Future<AcademicYear> createAcademicYear({
     required int startYear,
     required int endYear,
+    String? startDate,
+    String? endDate,
+    required bool isActive,
   }) async {
     final response = await http.post(
       Uri.parse('$API_BASE_URL/academic-years'),
@@ -56,11 +58,19 @@ class AcademicYearService {
       body: jsonEncode({
         'start_year': startYear,
         'end_year': endYear,
+        'start_date': startDate,
+        'end_date': endDate,
+        'is_active': isActive,
       }),
     );
 
     if (response.statusCode == 201) {
       return AcademicYear.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 422) { // Xử lý lỗi validation
+      Map<String, dynamic> body = jsonDecode(response.body);
+      Map<String, dynamic> errors = body['errors'];
+      String firstError = errors.values.first[0];
+      throw Exception(firstError);
     } else {
       throw Exception('Failed to create academic year: ${response.body}');
     }
@@ -70,6 +80,9 @@ class AcademicYearService {
     required int id,
     required int startYear,
     required int endYear,
+    String? startDate,
+    String? endDate,
+    required bool isActive,
   }) async {
     final response = await http.put(
       Uri.parse('$API_BASE_URL/academic-years/$id'),
@@ -77,11 +90,21 @@ class AcademicYearService {
       body: json.encode({
         'start_year': startYear,
         'end_year': endYear,
+        'start_date': startDate,
+        'end_date': endDate,
+        'is_active': isActive,
       }),
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to update academic year: ${response.statusCode}');
+      if (response.statusCode == 422) { // Xử lý lỗi validation
+        Map<String, dynamic> body = jsonDecode(response.body);
+        Map<String, dynamic> errors = body['errors'];
+        String firstError = errors.values.first[0];
+        throw Exception(firstError);
+      } else {
+        throw Exception('Failed to update academic year: ${response.statusCode}');
+      }
     }
   }
 }

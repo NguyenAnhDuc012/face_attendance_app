@@ -1,5 +1,5 @@
-// screens/AcademicYearList.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../layouts/app_footer.dart';
 import '../layouts/sidebar.dart';
@@ -27,7 +27,7 @@ class _AcademicYearListState extends State<AcademicYearList> {
           Sidebar(currentPage: _currentPage),
           Expanded(
             child: Column(
-              children: const [
+              children: [
                 TopBar(title: 'Năm học', subtitle: 'Danh sách'),
                 Expanded(
                   child: SingleChildScrollView(
@@ -90,6 +90,19 @@ class _AcademicYearTableCardState extends State<AcademicYearTableCard> {
     if (page >= 1 && page <= _lastPage) _fetchData(page: page);
   }
 
+  /// Định dạng chuỗi ngày YYYY-MM-DD sang DD/MM/YYYY
+  String _formatDateForDisplay(String? serviceDate) {
+    if (serviceDate == null || serviceDate.isEmpty) return 'N/A';
+    try {
+      // Parse chuỗi từ server
+      DateTime date = DateTime.parse(serviceDate);
+      // Định dạng lại để hiển thị
+      return DateFormat('dd/MM/yyyy').format(date);
+    } catch (e) {
+      return 'Lỗi Ngày'; // Trả về nếu định dạng không đúng
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -104,7 +117,6 @@ class _AcademicYearTableCardState extends State<AcademicYearTableCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header + Button thêm mới
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -136,7 +148,6 @@ class _AcademicYearTableCardState extends State<AcademicYearTableCard> {
             ),
             const SizedBox(height: 24),
 
-            // Search
             Align(
               alignment: Alignment.centerRight,
               child: SizedBox(
@@ -159,7 +170,6 @@ class _AcademicYearTableCardState extends State<AcademicYearTableCard> {
                     ),
                   ),
                   onChanged: (value) {
-                    // TODO: logic search nếu muốn
                   },
                 ),
               ),
@@ -190,8 +200,10 @@ class _AcademicYearTableCardState extends State<AcademicYearTableCard> {
                               color: Colors.grey[300]!, width: 1, borderRadius: BorderRadius.circular(8)),
                           columns: const [
                             DataColumn(label: Text('Mã')),
-                            DataColumn(label: Text('Năm bắt đầu')),
-                            DataColumn(label: Text('Năm kết thúc')),
+                            DataColumn(label: Text('Năm học')),
+                            DataColumn(label: Text('Ngày BĐ')),
+                            DataColumn(label: Text('Ngày KT')),
+                            DataColumn(label: Text('Trạng thái')),
                             DataColumn(label: Text('Hành động')),
                           ],
                           rows: _list.asMap().entries.map((entry) => _buildDataRow(entry.value, entry.key)).toList(),
@@ -201,7 +213,6 @@ class _AcademicYearTableCardState extends State<AcademicYearTableCard> {
                   },
                 ),
                 const SizedBox(height: 20),
-                // Pagination
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -231,8 +242,25 @@ class _AcademicYearTableCardState extends State<AcademicYearTableCard> {
       color: MaterialStateProperty.all(rowColor),
       cells: [
         DataCell(Text(item.id.toString())),
-        DataCell(Text(item.startYear.toString())),
-        DataCell(Text(item.endYear.toString())),
+        DataCell(Text('${item.startYear} - ${item.endYear}')),
+
+        // Gọi hàm helper để hiển thị ngày BĐ
+        DataCell(Text(_formatDateForDisplay(item.startDate))),
+        // Gọi hàm helper để hiển thị ngày KT
+        DataCell(Text(_formatDateForDisplay(item.endDate))),
+
+        // Hiển thị trạng thái
+        DataCell(
+          Chip(
+            label: Text(
+              item.isActive ? 'Hoạt động' : 'Không',
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: item.isActive ? Colors.green : Colors.grey,
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+            labelStyle: const TextStyle(fontSize: 12),
+          ),
+        ),
         DataCell(
           Row(
             children: [

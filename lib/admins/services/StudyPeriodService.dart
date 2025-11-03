@@ -25,12 +25,23 @@ class StudyPeriodService {
     }
   }
 
-  Future<StudyPeriod> createStudyPeriod(
-      {required String name, required int semesterId}) async {
+  Future<StudyPeriod> createStudyPeriod({
+    required String name,
+    required int semesterId,
+    String? startDate,
+    String? endDate,
+    required bool isActive,
+  }) async {
     final response = await http.post(
       Uri.parse('$API_BASE_URL/study-periods'),
       headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-      body: jsonEncode({'name': name, 'semester_id': semesterId}),
+      body: jsonEncode({
+        'name': name,
+        'semester_id': semesterId,
+        'start_date': startDate,
+        'end_date': endDate,
+        'is_active': isActive,
+      }),
     );
 
     if (response.statusCode == 201) {
@@ -45,14 +56,24 @@ class StudyPeriodService {
     }
   }
 
-  Future<void> updateStudyPeriod(
-      {required int id,
-        required String name,
-        required int semesterId}) async {
+  Future<void> updateStudyPeriod({
+    required int id,
+    required String name,
+    required int semesterId,
+    String? startDate,
+    String? endDate,
+    required bool isActive,
+  }) async {
     final response = await http.put(
       Uri.parse('$API_BASE_URL/study-periods/$id'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'name': name, 'semester_id': semesterId}),
+      body: jsonEncode({
+        'name': name,
+        'semester_id': semesterId,
+        'start_date': startDate,
+        'end_date': endDate,
+        'is_active': isActive,
+      }),
     );
 
     if (response.statusCode == 200) {

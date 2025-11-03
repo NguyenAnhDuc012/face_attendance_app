@@ -26,32 +26,65 @@ class SemesterService {
   }
 
   Future<Semester> createSemester(
-      {required String name, required int academicYearId}) async {
+      {required String name,
+        required int academicYearId,
+        String? startDate,
+        String? endDate,
+        required bool isActive,
+      }) async {
     final response = await http.post(
       Uri.parse('$API_BASE_URL/semesters'),
       headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-      body: jsonEncode({'name': name, 'academic_year_id': academicYearId}),
+      body: jsonEncode({
+        'name': name,
+        'academic_year_id': academicYearId,
+        'start_date': startDate,
+        'end_date': endDate,
+        'is_active': isActive,
+      }),
     );
 
     if (response.statusCode == 201) {
       return Semester.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 422) { // Xử lý lỗi validation
+      Map<String, dynamic> body = jsonDecode(response.body);
+      Map<String, dynamic> errors = body['errors'];
+      String firstError = errors.values.first[0];
+      throw Exception(firstError);
     } else {
-      throw Exception('Failed to create semester');
+      throw Exception('Lỗi khi tạo học kỳ: ${response.body}');
     }
   }
 
   Future<void> updateSemester(
       {required int id,
         required String name,
-        required int academicYearId}) async {
+        required int academicYearId,
+        String? startDate,
+        String? endDate,
+        required bool isActive,
+      }) async {
     final response = await http.put(
       Uri.parse('$API_BASE_URL/semesters/$id'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'name': name, 'academic_year_id': academicYearId}),
+      body: jsonEncode({
+        'name': name,
+        'academic_year_id': academicYearId,
+        'start_date': startDate,
+        'end_date': endDate,
+        'is_active': isActive,
+      }),
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to update semester');
+      if (response.statusCode == 422) { // Xử lý lỗi validation
+        Map<String, dynamic> body = jsonDecode(response.body);
+        Map<String, dynamic> errors = body['errors'];
+        String firstError = errors.values.first[0];
+        throw Exception(firstError);
+      } else {
+        throw Exception('Lỗi khi cập nhật học kỳ: ${response.statusCode}');
+      }
     }
   }
 

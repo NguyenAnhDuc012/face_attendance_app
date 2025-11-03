@@ -5,6 +5,7 @@ import '../layouts/app_footer.dart';
 import '../models/AcademicYear.dart';
 import '../services/AcademicYearService.dart';
 import 'AcademicYearList.dart';
+import 'package:intl/intl.dart';
 
 class AcademicYearEdit extends StatefulWidget {
   final AcademicYear item;
@@ -16,19 +17,91 @@ class AcademicYearEdit extends StatefulWidget {
 
 class _AcademicYearEditState extends State<AcademicYearEdit> {
   final _formKey = GlobalKey<FormState>();
-  late final _startYearController =
-  TextEditingController(text: widget.item.startYear.toString());
-  late final _endYearController =
-  TextEditingController(text: widget.item.endYear.toString());
   final AcademicYearService _service = AcademicYearService();
-
   bool _isLoading = false;
+
+  // Controller
+  late final TextEditingController _startYearController;
+  late final TextEditingController _endYearController;
+  final _startDateController = TextEditingController(); // Chỉ hiển thị
+  final _endDateController = TextEditingController();   // Chỉ hiển thị
+
+  // State
+  DateTime? _selectedStartDate;
+  DateTime? _selectedEndDate;
+  late bool _isActive;
+
+  // --- HÀM HELPER ---
+  // Định dạng YYYY-MM-DD (từ server) sang DD/MM/YYYY (hiển thị)
+  String _formatDateForDisplay(String? serviceDate) {
+    if (serviceDate == null || serviceDate.isEmpty) return '';
+    try {
+      DateTime date = DateTime.parse(serviceDate);
+      return DateFormat('dd/MM/yyyy').format(date);
+    } catch (e) {
+      return ''; // Trả về rỗng nếu parse lỗi
+    }
+  }
+
+  // Định dạng DateTime sang YYYY-MM-DD (gửi đi)
+  String? _formatDateForService(DateTime? date) {
+    if (date == null) return null;
+    return DateFormat('yyyy-MM-dd').format(date);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Gán giá trị ban đầu
+    _startYearController = TextEditingController(text: widget.item.startYear.toString());
+    _endYearController = TextEditingController(text: widget.item.endYear.toString());
+    _isActive = widget.item.isActive;
+
+    // Cập nhật state ngày và controller hiển thị
+    if (widget.item.startDate != null) {
+      _selectedStartDate = DateTime.parse(widget.item.startDate!);
+      _startDateController.text = _formatDateForDisplay(widget.item.startDate);
+    }
+    if (widget.item.endDate != null) {
+      _selectedEndDate = DateTime.parse(widget.item.endDate!);
+      _endDateController.text = _formatDateForDisplay(widget.item.endDate);
+    }
+  }
 
   @override
   void dispose() {
     _startYearController.dispose();
     _endYearController.dispose();
+    _startDateController.dispose();
+    _endDateController.dispose();
     super.dispose();
+  }
+
+  // Hàm helper để chọn ngày
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    DateTime initial = isStartDate
+        ? (_selectedStartDate ?? DateTime.now())
+        : (_selectedEndDate ?? _selectedStartDate ?? DateTime.now());
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null) {
+      String formattedDate = DateFormat('dd/MM/yyyy').format(picked); // Hiển thị
+      setState(() {
+        if (isStartDate) {
+          _selectedStartDate = picked; // Lưu
+          _startDateController.text = formattedDate;
+        } else {
+          _selectedEndDate = picked; // Lưu
+          _endDateController.text = formattedDate;
+        }
+      });
+    }
   }
 
   Future<void> _submit() async {
@@ -41,6 +114,11 @@ class _AcademicYearEditState extends State<AcademicYearEdit> {
         id: widget.item.id,
         startYear: int.parse(_startYearController.text),
         endYear: int.parse(_endYearController.text),
+
+        // Gửi ngày đã định dạng
+        startDate: _formatDateForService(_selectedStartDate), // <-- CẬP NHẬT
+        endDate: _formatDateForService(_selectedEndDate),     // <-- CẬP NHẬT
+        isActive: _isActive,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,14 +133,17 @@ class _AcademicYearEditState extends State<AcademicYearEdit> {
         MaterialPageRoute(builder: (context) => const AcademicYearList()),
       );
     } catch (e) {
+      final errorMessage = e.toString().replaceFirst("Exception: ", "");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Lỗi khi cập nhật năm học: $e'),
+          content: Text('Lỗi khi cập nhật năm học: $errorMessage'),
           backgroundColor: Colors.red,
         ),
       );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -120,6 +201,8 @@ class _AcademicYearEditState extends State<AcademicYearEdit> {
                                     textAlign: TextAlign.center,
                                   ),
                                   const SizedBox(height: 32),
+
+                                  // Năm BĐ
                                   TextFormField(
                                     controller: _startYearController,
                                     decoration: const InputDecoration(
@@ -140,6 +223,8 @@ class _AcademicYearEditState extends State<AcademicYearEdit> {
                                     },
                                   ),
                                   const SizedBox(height: 20),
+
+                                  // Năm KT
                                   TextFormField(
                                     controller: _endYearController,
                                     decoration: const InputDecoration(
@@ -163,6 +248,62 @@ class _AcademicYearEditState extends State<AcademicYearEdit> {
                                       return null;
                                     },
                                   ),
+                                  const SizedBox(height: 20),
+
+                                  // --- WIDGET ĐÃ CẬP NHẬT ---
+                                  // Ngày BĐ
+                                  TextFormField(
+                                    controller: _startDateController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Ngày bắt đầu (Tùy chọn)',
+                                      hintText: 'dd/mm/yyyy',
+                                      prefixIcon: Icon(Icons.date_range),
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    readOnly: true,
+                                    onTap: () => _selectDate(context, true),
+                                  ),
+                                  const SizedBox(height: 20),
+
+                                  // Ngày KT
+                                  TextFormField(
+                                    controller: _endDateController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Ngày kết thúc (Tùy chọn)',
+                                      hintText: 'dd/mm/yyyy',
+                                      prefixIcon: Icon(Icons.date_range_outlined),
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    readOnly: true,
+                                    onTap: () => _selectDate(context, false),
+                                    validator: (value) {
+                                      if (_selectedStartDate != null && _selectedEndDate != null) {
+                                        if (_selectedEndDate!.isBefore(_selectedStartDate!)) {
+                                          return 'Ngày kết thúc phải sau ngày bắt đầu';
+                                        }
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 20),
+
+                                  // Switch Active
+                                  SwitchListTile(
+                                    title: const Text('Đặt làm năm học hiện tại?'),
+                                    subtitle: const Text('Các năm học khác sẽ bị hủy kích hoạt.'),
+                                    value: _isActive,
+                                    onChanged: (bool value) {
+                                      setState(() {
+                                        _isActive = value;
+                                      });
+                                    },
+                                    secondary: Icon(
+                                      _isActive ? Icons.check_circle : Icons.radio_button_unchecked,
+                                      color: _isActive ? Colors.green : Colors.grey,
+                                    ),
+                                  ),
+                                  // --- KẾT THÚC CẬP NHẬT ---
+
                                   const SizedBox(height: 40),
                                   ElevatedButton(
                                     onPressed: _isLoading ? null : _submit,
