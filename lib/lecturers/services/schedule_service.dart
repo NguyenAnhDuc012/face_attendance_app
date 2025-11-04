@@ -9,6 +9,7 @@ const String IP_MAY_CHU = '192.168.1.164:8000';
 const String API_BASE_URL = 'http://$IP_MAY_CHU/api/lecturer';
 
 class ScheduleService {
+  // lịch dạy của giảng viên hnay
   static Future<List<TodaySchedule>> getTodaySchedule() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');

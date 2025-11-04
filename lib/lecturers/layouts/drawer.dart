@@ -1,5 +1,6 @@
 // lib/layouts/CustomDrawer.dart
 import 'package:face_attendance_app/lecturers/screens/Login.dart';
+import 'package:face_attendance_app/lecturers/screens/course_list_screen.dart';
 import 'package:face_attendance_app/lecturers/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -92,9 +93,12 @@ class CustomDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: const Text('Cài đặt'),
+            title: const Text('Các lớp học phần'),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const CourseListScreen()),
+              );
             },
           ),
           const Divider(),
