@@ -1,5 +1,6 @@
 // lib/layouts/CustomDrawer.dart
 import 'package:face_attendance_app/lecturers/screens/Login.dart';
+import 'package:face_attendance_app/lecturers/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -83,7 +84,10 @@ class CustomDrawer extends StatelessWidget {
             leading: const Icon(Icons.home),
             title: const Text('Trang chủ'),
             onTap: () {
-              Navigator.pop(context); // Đóng Drawer
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
             },
           ),
           ListTile(

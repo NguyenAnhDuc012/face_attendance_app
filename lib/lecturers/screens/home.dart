@@ -1,25 +1,21 @@
-// lib/screens/HomeScreen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Đảm bảo bạn đã import đúng đường dẫn
+import '../model/today_schedule.dart';
+import '../services/schedule_service.dart';
+
 import '../layouts/bottom_tab_nav.dart';
 import '../layouts/drawer.dart';
 import '../layouts/header.dart';
 
-// ----- HomeScreen (Giữ nguyên) -----
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Biến state để theo dõi tab đang được chọn
   int _selectedIndex = 0;
-
-  // Hàm cập nhật state khi người dùng bấm tab
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -28,33 +24,69 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold là cấu trúc cơ bản của một màn hình
     return Scaffold(
-      appBar: const CustomHeader(), // Sử dụng header tùy chỉnh
-      drawer: const CustomDrawer(), // Sử dụng drawer tùy chỉnh
-      body: const HomeBody(), // Nội dung chính của trang
+      appBar: const CustomHeader(),
+      drawer: const CustomDrawer(),
+      body: const HomeBody(),
       bottomNavigationBar: BottomTabNav(
-        currentIndex: _selectedIndex, // Truyền state hiện tại
-        onTap: _onItemTapped, // Truyền hàm callback
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
       ),
     );
   }
 }
 
-// ----- HomeBody (Giữ nguyên) -----
-class HomeBody extends StatelessWidget {
+class HomeBody extends StatefulWidget {
   const HomeBody({super.key});
 
   @override
+  State<HomeBody> createState() => _HomeBodyState();
+}
+
+class _HomeBodyState extends State<HomeBody> {
+  // Biến state để lưu trữ kết quả API
+  late Future<List<TodaySchedule>> _todayScheduleFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // Gọi API khi widget được tải
+    _todayScheduleFuture = ScheduleService.getTodaySchedule();
+  }
+
+  // Hàm helper để đổi status text
+  String _getStatusText(String status) {
+    switch (status) {
+      case 'active':
+        return 'Đang diễn ra';
+      case 'closed':
+        return 'Điểm danh kết thúc';
+      case 'pending':
+      default:
+        return 'Chưa diễn ra';
+    }
+  }
+
+  // Hàm helper để lấy màu status
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'active':
+        return Colors.blue; // Đang diễn ra
+      case 'closed':
+        return Colors.green; // Kết thúc
+      case 'pending':
+      default:
+        return Colors.orange; // Chưa diễn ra
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // ListView để nội dung có thể cuộn
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        // Card chào mừng (Đã được cập nhật bên dưới)
-        const WelcomeCard(),
+        const WelcomeCard(), // WelcomeCard đã có logic tự load tên
         const SizedBox(height: 24),
-        // Tiêu đề "Lịch dạy hôm nay"
         Text(
           'Lịch dạy hôm nay',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -63,93 +95,108 @@ class HomeBody extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Các card lịch dạy (có thể tái sử dụng)
-        const ScheduleCard(
-          subject: 'Lập trình ứng dụng cho các thiết bị di động',
-          time: '7:00 - 7:50',
-          room: 'Phòng 329 - A2',
-          classCode: '64KTPM.NB',
-          count: '50/50',
-          status: 'Điểm danh kết thúc',
-          statusColor: Colors.green, // Màu cho trạng thái
+        // ===== SỬ DỤNG FutureBuilder ĐỂ LOAD DATA =====
+        FutureBuilder<List<TodaySchedule>>(
+          future: _todayScheduleFuture,
+          builder: (context, snapshot) {
+            // Trường hợp 1: Đang tải dữ liệu
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            // Trường hợp 2: Bị lỗi
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  'Lỗi tải lịch học: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              );
+            }
+
+            // Trường hợp 3: Không có dữ liệu (hoặc API trả về mảng rỗng)
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
+                child: Text(
+                  'Hôm nay không có lịch dạy.',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              );
+            }
+
+            // Trường hợp 4: Có dữ liệu
+            final schedules = snapshot.data!;
+            return ListView.builder(
+              // Quan trọng: Tắt cuộn của ListView con
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true, // Để nó nằm trong ListView cha
+              itemCount: schedules.length,
+              itemBuilder: (context, index) {
+                final schedule = schedules[index];
+
+                // Trả về ScheduleCard với dữ liệu thật
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: ScheduleCard(
+                    subject: schedule.subjectName,
+                    time: '${schedule.startTime} - ${schedule.endTime}',
+                    room: schedule.roomName,
+                    classCode: schedule.className,
+                    count: '${schedule.presentCount}/${schedule.totalStudents}',
+                    status: _getStatusText(schedule.status),
+                    statusColor: _getStatusColor(schedule.status),
+                  ),
+                );
+              },
+            );
+          },
         ),
-        const SizedBox(height: 16),
-        const ScheduleCard(
-          subject: 'Học tăng cường và ứng dụng',
-          time: '7:55 - 8:50',
-          room: 'Phòng 329 - A2',
-          classCode: '64KTPM 1',
-          count: '7/40',
-          status: 'Chưa diễn ra',
-          statusColor: Colors.orange, // Màu cho trạng thái
-        ),
-        const ScheduleCard(
-          subject: 'Lập trình ứng dụng cho các thiết bị di động',
-          time: '7:00 - 7:50',
-          room: 'Phòng 329 - A2',
-          classCode: '64KTPM.NB',
-          count: '50/50',
-          status: 'Điểm danh kết thúc',
-          statusColor: Colors.green, // Màu cho trạng thái
-        ),
-        const SizedBox(height: 16),
       ],
     );
   }
 }
 
-// ----- WelcomeCard (ĐÃ CHUYỂN THÀNH STATEFUL) -----
+// ----- WelcomeCard (Giữ nguyên như code của bạn) -----
 class WelcomeCard extends StatefulWidget {
   const WelcomeCard({super.key});
-
   @override
   State<WelcomeCard> createState() => _WelcomeCardState();
 }
 
 class _WelcomeCardState extends State<WelcomeCard> {
-  String _lecturerName = 'Đang tải...'; // Giá trị mặc định
-
+  String _lecturerName = 'Đang tải...';
   @override
   void initState() {
     super.initState();
-    _loadLecturerInfo(); // Gọi hàm load thông tin
+    _loadLecturerInfo();
   }
-
-  // Hàm load thông tin từ SharedPreferences
   Future<void> _loadLecturerInfo() async {
     final prefs = await SharedPreferences.getInstance();
     final fullName = prefs.getString('user_full_name');
-
     if (mounted) {
       setState(() {
-        // Nếu không tìm thấy tên, hiển thị 'Giảng viên'
         _lecturerName = fullName ?? 'Giảng viên';
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 0.5,
       color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
             const CircleAvatar(
               radius: 30,
-              // Thay thế bằng ảnh của bạn
               backgroundImage: NetworkImage('https://placekitten.com/100/100'),
             ),
             const SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // HIỂN THỊ TÊN TỪ STATE
                 Text(
                   'Chào $_lecturerName!',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -159,7 +206,7 @@ class _WelcomeCardState extends State<WelcomeCard> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Khoa: Công nghệ thông tin', // (Phần này bạn có thể cập nhật sau)
+                  'Khoa: Công nghệ thông tin',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -173,7 +220,7 @@ class _WelcomeCardState extends State<WelcomeCard> {
   }
 }
 
-// ----- ScheduleCard (Giữ nguyên) -----
+// ----- ScheduleCard (Giữ nguyên như code của bạn) -----
 class ScheduleCard extends StatelessWidget {
   final String subject;
   final String time;
@@ -199,9 +246,7 @@ class ScheduleCard extends StatelessWidget {
     return Card(
       elevation: 1.0,
       shadowColor: Colors.grey.withOpacity(0.2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
