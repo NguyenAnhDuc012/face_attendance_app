@@ -178,7 +178,7 @@ class AbsentPage extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: const Border(
-          left: BorderSide(color: Colors.red, width: 5),
+          left: BorderSide(color: Colors.blue, width: 5),
         ),
         boxShadow: [
           BoxShadow(
