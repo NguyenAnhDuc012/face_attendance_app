@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/session_detail.dart';
+import '../model/student_attendance_record.dart';
 
 // Dùng chung IP
 const String IP_MAY_CHU = '192.168.1.164:8000';
@@ -131,4 +132,76 @@ class SessionService {
       throw Exception('Lỗi không xác định: $e');
     }
   }
+
+  // LẤY DANH SÁCH ĐIỂM DANH
+  static Future<List<StudentAttendanceRecord>> getAttendanceRecords(int sessionId) async {
+    final token = await _getToken();
+    if (token == null) throw Exception('Chưa đăng nhập.');
+
+    final url = Uri.parse('$API_BASE_URL/session/$sessionId/records');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      ).timeout(const Duration(seconds: 10));
+
+      final body = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && body['status'] == true) {
+        List<dynamic> recordsData = body['data'];
+        return recordsData
+            .map((json) => StudentAttendanceRecord.fromJson(json))
+            .toList();
+      } else {
+        throw Exception(body['message'] ?? 'Không thể tải danh sách');
+      }
+    } on TimeoutException {
+      throw Exception('Hết thời gian chờ. Máy chủ phản hồi quá chậm.');
+    } on SocketException {
+      throw Exception('Lỗi mạng. Kiểm tra IP hoặc kết nối.');
+    } catch (e) {
+      throw Exception('Lỗi không xác định: $e');
+    }
+  }
+
+  static Future<void> updateRecordStatus({
+    required int recordId,
+    required String newStatus,
+  }) async {
+    final token = await _getToken();
+    if (token == null) throw Exception('Chưa đăng nhập.');
+
+    final url = Uri.parse('$API_BASE_URL/record/$recordId/update-status');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'status': newStatus, // Gửi trạng thái mới
+        }),
+      ).timeout(const Duration(seconds: 10));
+
+      final body = jsonDecode(response.body);
+
+      if (response.statusCode != 200 || body['status'] != true) {
+        throw Exception(body['message'] ?? 'Lỗi khi cập nhật trạng thái');
+      }
+      // Thành công (Không cần trả về gì)
+
+    } on TimeoutException {
+      throw Exception('Hết thời gian chờ. Máy chủ phản hồi quá chậm.');
+    } on SocketException {
+      throw Exception('Lỗi mạng. Kiểm tra IP hoặc kết nối.');
+    } catch (e) {
+      throw Exception('Lỗi không xác định: $e');
+    }
+  }
+
 }

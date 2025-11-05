@@ -1,4 +1,5 @@
 // lib/screens/course_detail_screen.dart
+import 'package:face_attendance_app/lecturers/screens/course_list_screen.dart';
 import 'package:face_attendance_app/lecturers/screens/session_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Cần thêm thư viện intl: flutter pub add intl
@@ -80,7 +81,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black54),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const CourseListScreen()),
+            );
+          },
         ),
         // Hiển thị tên lớp và môn học trên AppBar
         title: Column(
@@ -260,12 +266,15 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                     const SizedBox(height: 12),
                     ElevatedButton(
                       onPressed: () {
-                        // Điều hướng đến màn hình chi tiết buổi học
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => SessionDetailScreen(
                               sessionId: session.sessionId,
+
+                              courseId: widget.courseId,
+                              courseName: widget.courseName,
+                              className: widget.className,
                             ),
                           ),
                         );

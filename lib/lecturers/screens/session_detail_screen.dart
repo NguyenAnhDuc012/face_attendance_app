@@ -1,4 +1,6 @@
 // lib/screens/session_detail_screen.dart
+import 'package:face_attendance_app/lecturers/screens/course_detail_screen.dart';
+import 'package:face_attendance_app/lecturers/screens/student_list_screen.dart';
 import 'package:flutter/material.dart';
 import '../layouts/bottom_tab_nav.dart';
 import '../model/session_detail.dart';
@@ -7,7 +9,17 @@ import '../services/session_service.dart';
 class SessionDetailScreen extends StatefulWidget {
   final int sessionId;
 
-  const SessionDetailScreen({super.key, required this.sessionId});
+  final int courseId;
+  final String courseName;
+  final String className;
+
+  const SessionDetailScreen({
+    super.key,
+    required this.sessionId,
+    required this.courseId,
+    required this.courseName,
+    required this.className,
+  });
 
   @override
   State<SessionDetailScreen> createState() => _SessionDetailScreenState();
@@ -150,7 +162,19 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black54),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            // Dùng pushReplacement như bạn yêu cầu
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CourseDetailScreen(
+                  courseId: widget.courseId,
+                  courseName: widget.courseName,
+                  className: widget.className,
+                ),
+              ),
+            );
+          },
         ),
         title: const Text(
           'Quản lý điểm danh',
@@ -244,7 +268,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
           absent: absentCount,
         ),
         const SizedBox(height: 32),
-        _buildActionsSection(status), // <-- Truyền status
+        _buildActionsSection(session, status), // <-- Truyền status
       ],
     );
   }
@@ -532,7 +556,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   }
 
   // Khối "Hành động khác" (CẬP NHẬT: Ẩn nếu chưa bắt đầu)
-  Widget _buildActionsSection(String status) {
+  Widget _buildActionsSection(SessionDetail session, String status) {
     // Chỉ hiển thị khi buổi học đang 'active' hoặc 'closed'
     if (status == 'pending') {
       return const SizedBox.shrink(); // Trả về widget rỗng
@@ -555,7 +579,24 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
           _buildActionRow(
             title: 'Xem danh sách sinh viên',
             actionText: 'Xem ngay',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StudentListScreen(
+                    // Truyền toàn bộ thông tin cần thiết
+                    sessionId: session.sessionId,
+                    courseName: session.courseName,
+                    className: session.className,
+                    roomName: session.roomName,
+                    sessionDate: session.sessionDate,
+                    startTime: session.startTime,
+                    endTime: session.endTime,
+                    courseId: widget.courseId,
+                  ),
+                ),
+              );
+            },
           ),
           const Divider(height: 24),
           _buildActionRow(

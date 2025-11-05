@@ -1,3 +1,4 @@
+import 'package:face_attendance_app/lecturers/screens/session_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -138,6 +139,11 @@ class _HomeBodyState extends State<HomeBody> {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: ScheduleCard(
+                    sessionId: schedule.sessionId,
+                    courseId: schedule.courseId,
+                    courseName: schedule.subjectName,
+                    className: schedule.className,
+
                     subject: schedule.subjectName,
                     time: '${schedule.startTime} - ${schedule.endTime}',
                     room: schedule.roomName,
@@ -222,6 +228,11 @@ class _WelcomeCardState extends State<WelcomeCard> {
 
 // ----- ScheduleCard (Giữ nguyên như code của bạn) -----
 class ScheduleCard extends StatelessWidget {
+  final int? sessionId;
+  final int courseId;
+  final String courseName;
+  final String className;
+
   final String subject;
   final String time;
   final String room;
@@ -232,6 +243,11 @@ class ScheduleCard extends StatelessWidget {
 
   const ScheduleCard({
     super.key,
+    required this.sessionId,
+    required this.courseId,
+    required this.courseName,
+    required this.className,
+
     required this.subject,
     required this.time,
     required this.room,
@@ -295,7 +311,19 @@ class ScheduleCard extends StatelessWidget {
                   ],
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SessionDetailScreen(
+                          sessionId: sessionId!,
+                          courseId: courseId,
+                          courseName: courseName,
+                          className: className,
+                        ),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,

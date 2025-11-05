@@ -1,5 +1,7 @@
 class TodaySchedule {
   final int scheduleId;
+  final int? sessionId;
+  final int courseId;
   final String subjectName;
   final String roomName;
   final String className;
@@ -11,6 +13,8 @@ class TodaySchedule {
 
   TodaySchedule({
     required this.scheduleId,
+    this.sessionId,
+    required this.courseId,
     required this.subjectName,
     required this.roomName,
     required this.className,
@@ -24,6 +28,8 @@ class TodaySchedule {
   factory TodaySchedule.fromJson(Map<String, dynamic> json) {
     return TodaySchedule(
       scheduleId: json['schedule_id'],
+      sessionId: json['session_id'],
+      courseId: json['course_id'],
       subjectName: json['subject_name'],
       roomName: json['room_name'],
       className: json['class_name'],
