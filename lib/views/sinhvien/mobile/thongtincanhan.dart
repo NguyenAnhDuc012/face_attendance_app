@@ -8,7 +8,7 @@ class ThongTinCaNhan extends StatelessWidget {
     return Scaffold(
       drawer: const SidebarMenu(),
       appBar: AppBar(
-        backgroundColor: Colors.green[800],
+        backgroundColor: Colors.blue[800],
         title: const Text(
           'Trang chủ',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
