@@ -1,5 +1,6 @@
 // lib/layouts/CustomDrawer.dart
 import 'package:face_attendance_app/lecturers/screens/Login.dart';
+import 'package:face_attendance_app/lecturers/screens/TEST.dart';
 import 'package:face_attendance_app/lecturers/screens/course_list_screen.dart';
 import 'package:face_attendance_app/lecturers/screens/home.dart';
 import 'package:flutter/material.dart';
@@ -98,6 +99,16 @@ class CustomDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const CourseListScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('TEST'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const TEST()),
               );
             },
           ),

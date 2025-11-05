@@ -1,4 +1,5 @@
 // lib/screens/course_detail_screen.dart
+import 'package:face_attendance_app/lecturers/screens/session_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Cần thêm thư viện intl: flutter pub add intl
 import '../model/course_session.dart';
@@ -259,7 +260,15 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
                     const SizedBox(height: 12),
                     ElevatedButton(
                       onPressed: () {
-                        // TODO: Thêm logic điều hướng đến chi tiết buổi học
+                        // Điều hướng đến màn hình chi tiết buổi học
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SessionDetailScreen(
+                              sessionId: session.sessionId,
+                            ),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue[600],
