@@ -18,7 +18,7 @@ class DdThanhCong extends StatelessWidget {
         title: const Text(
           'Lập trình Mobile',
           style: TextStyle(
-            color: Colors.pink,
+            color: Colors.white,
             fontSize: 16,          // nhỏ hơn
             fontWeight: FontWeight.w500,
           ),
