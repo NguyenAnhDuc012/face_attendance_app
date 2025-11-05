@@ -26,7 +26,7 @@ class _BuoiHocDaQuaState extends State<BuoiHocDaQua>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.blue,
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E3A8A),
         elevation: 0,
