@@ -178,7 +178,7 @@ class _DiemDanhScreenState extends State<DiemDanhScreen>
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.green, size: 30),
+          Icon(icon, color: Colors.blue, size: 30),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
