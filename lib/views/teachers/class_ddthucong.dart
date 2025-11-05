@@ -202,7 +202,7 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
           color: color,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Colors.red : Colors.transparent,
+            color: isSelected ? Colors.blue : Colors.transparent,
             width: 2,
           ),
         ),
