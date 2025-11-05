@@ -6,7 +6,7 @@ class DsLopHoc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.red[200],
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E3A8A),
         elevation: 0,
