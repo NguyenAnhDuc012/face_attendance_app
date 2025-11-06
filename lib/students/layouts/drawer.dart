@@ -1,10 +1,9 @@
 // lib/layouts/CustomDrawer.dart
 import 'package:face_attendance_app/lecturers/screens/Login.dart';
-import 'package:face_attendance_app/lecturers/screens/TEST.dart';
-import 'package:face_attendance_app/lecturers/screens/course_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../screens/student_course_list_screen.dart';
 import '../screens/student_home_screen.dart';
 import '../screens/student_login_screen.dart';
 import '../services/student_auth_service.dart';
@@ -101,20 +100,11 @@ class CustomDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const CourseListScreen()),
+                MaterialPageRoute(builder: (context) => const StudentCourseListScreen()),
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('TEST'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const TEST()),
-              );
-            },
-          ),
+
           const Divider(),
 
           // 2. CẬP NHẬT NÚT ĐĂNG XUẤT
