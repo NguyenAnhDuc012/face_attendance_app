@@ -1,3 +1,4 @@
+import 'package:face_attendance_app/students/screens/student_course_detail_screen.dart';
 import 'package:face_attendance_app/students/screens/student_home_screen.dart';
 import 'package:flutter/material.dart';
 import '../model/student_course_group.dart';
@@ -165,13 +166,18 @@ class _StudentCourseListScreenState extends State<StudentCourseListScreen> {
             // Nút "Chi tiết"
             ElevatedButton(
               onPressed: () {
-                // TODO: Điều hướng đến trang chi tiết của Sinh viên
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) => StudentCourseDetailScreen(courseId: course.id),
-                //   ),
-                // );
+                // Điều hướng đến màn hình chi tiết mới
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StudentCourseDetailScreen(
+                      courseId: course.id,
+                      // Truyền tên để hiển thị
+                      courseName: course.subjectName,
+                      lecturerName: course.lecturerName,
+                    ),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue[600],
