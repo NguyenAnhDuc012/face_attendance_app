@@ -1,11 +1,11 @@
-// lib/screens/student_course_detail_screen.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Cần thêm: flutter pub add intl
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/student_course_session.dart';
 import '../services/student_course_service.dart';
 import '../layouts/bottom_tab_nav.dart';
+import 'student_edit_attendance_screen.dart';
 
 
 class StudentCourseDetailScreen extends StatefulWidget {
@@ -27,6 +27,12 @@ class StudentCourseDetailScreen extends StatefulWidget {
 
 class _StudentCourseDetailScreenState extends State<StudentCourseDetailScreen>
     with SingleTickerProviderStateMixin {
+  // Hàm refresh (Sẽ cần dùng)
+  void _refreshData() {
+    setState(() {
+      _detailFuture = StudentCourseService.getCourseDetails(widget.courseId);
+    });
+  }
 
   late TabController _tabController;
   late Future<StudentCourseDetail> _detailFuture;
@@ -196,13 +202,15 @@ class _StudentCourseDetailScreenState extends State<StudentCourseDetailScreen>
     );
   }
 
-  // ===== CARD ĐÃ THIẾT KẾ LẠI CHO SINH VIÊN =====
   Widget _buildSessionCard(StudentCourseSession session) {
     final String formattedDate = DateFormat('dd/MM/yyyy').format(session.sessionDate);
     final String subjectName = widget.courseName;
 
     // Nút "Điểm danh" chỉ bật khi buổi học 'active'
     final bool canAttend = (session.sessionStatus == 'active');
+    // Và sinh viên chưa điểm danh
+    final bool alreadyAttended = (session.myAttendanceStatus == 'present' ||
+        session.myAttendanceStatus == 'late');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,19 +283,42 @@ class _StudentCourseDetailScreenState extends State<StudentCourseDetailScreen>
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton(
-                      // Bật/tắt nút dựa trên trạng thái BUỔI HỌC
-                      onPressed: canAttend ? () {
-                        // TODO: Điều hướng đến màn hình Điểm danh
-                        // (Màn hình quét QR hoặc chụp ảnh)
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => StudentAttendanceScreen(
-                        //       sessionId: session.sessionId,
-                        //     ),
-                        //   ),
-                        // );
-                      } : null,
+                      // Cập nhật logic onPressed
+                      onPressed: (canAttend && !alreadyAttended) ? () async {
+                        // 1. KIỂM TRA MODE
+                        if (session.attendanceMode == 'manual') {
+                          // 2. Đi đến màn hình Sửa (Thủ công)
+                          final bool? didUpdate = await Navigator.push<bool>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StudentEditAttendanceScreen(
+                                sessionId: session.sessionId,
+                                studentName: "Sinh viên", // Tạm (lấy từ prefs nếu muốn)
+                                currentStatus: session.myAttendanceStatus,
+                                courseName: widget.courseName,
+                                lecturerName: widget.lecturerName,
+                                roomName: session.roomName,
+                                sessionDate: formattedDate,
+                                startTime: session.startTime,
+                                endTime: session.endTime,
+                              ),
+                            ),
+                          );
+                          // 3. Nếu cập nhật thành công, tải lại list
+                          if (didUpdate == true) {
+                            _refreshData();
+                          }
+                        } else {
+                          // Chế độ QR (chưa làm)
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Mở camera để quét QR (chưa hỗ trợ)'),
+                              backgroundColor: Colors.indigo,
+                            ),
+
+                          );
+                        }
+                      } : null, // Vô hiệu hóa nút
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue[600],
                         foregroundColor: Colors.white,
@@ -298,7 +329,8 @@ class _StudentCourseDetailScreenState extends State<StudentCourseDetailScreen>
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                       ),
                       // Đổi chữ trên nút
-                      child: Text(session.sessionStatus == 'closed' ? 'Đã kết thúc' : 'Điểm danh'),
+                      child: Text(alreadyAttended ? 'Đã điểm danh' :
+                      (session.sessionStatus == 'closed' ? 'Đã kết thúc' : 'Điểm danh')),
                     ),
                   ],
                 ),

@@ -10,6 +10,7 @@ class StudentCourseSession {
   final String sessionStatus; // 'pending', 'active', 'closed'
   final String myAttendanceStatus; // 'present', 'absent', 'late', 'chưa có'
   final String? myCheckInTime;
+  final String attendanceMode;
 
   StudentCourseSession({
     required this.sessionId,
@@ -20,6 +21,7 @@ class StudentCourseSession {
     required this.sessionStatus,
     required this.myAttendanceStatus,
     this.myCheckInTime,
+    required this.attendanceMode,
   });
 
   factory StudentCourseSession.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class StudentCourseSession {
       sessionStatus: json['session_status'],
       myAttendanceStatus: json['my_attendance_status'],
       myCheckInTime: json['my_check_in_time'],
+      attendanceMode: json['attendance_mode'],
     );
   }
 
