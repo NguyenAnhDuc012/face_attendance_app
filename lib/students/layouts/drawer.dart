@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/student_course_list_screen.dart';
 import '../screens/student_home_screen.dart';
 import '../screens/student_login_screen.dart';
+import '../screens/student_profile_screen.dart';
 import '../services/student_auth_service.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -101,6 +102,17 @@ class CustomDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const StudentCourseListScreen()),
+              );
+            },
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Thông tin cá nhân'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const StudentProfileScreen()),
               );
             },
           ),

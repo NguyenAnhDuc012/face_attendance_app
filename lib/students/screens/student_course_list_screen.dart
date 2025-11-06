@@ -62,8 +62,7 @@ class _StudentCourseListScreenState extends State<StudentCourseListScreen> {
             padding: const EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
               radius: 18,
-              backgroundImage: NetworkImage('https://placekitten.com/50/50'),
-            ),
+              backgroundImage: NetworkImage('https://picsum.photos/50/50'),            ),
           ),
         ],
       ),

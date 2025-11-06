@@ -198,7 +198,7 @@ class _WelcomeCardState extends State<WelcomeCard> {
           children: [
             const CircleAvatar(
               radius: 30,
-              backgroundImage: NetworkImage('https://placekitten.com/100/100'),
+              backgroundImage: NetworkImage('https://picsum.photos/100/100'),
             ),
             const SizedBox(width: 16),
             Column(
