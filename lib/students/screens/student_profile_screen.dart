@@ -1,4 +1,3 @@
-import 'package:face_attendance_app/students/screens/student_home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -6,7 +5,9 @@ import '../model/student_profile.dart';
 import '../services/student_profile_service.dart';
 import '../layouts/bottom_tab_nav.dart';
 
+
 import '../services/student_profile_service.dart' show IP_MAY_CHU;
+import 'student_home_screen.dart';
 
 class StudentProfileScreen extends StatefulWidget {
   const StudentProfileScreen({super.key});
@@ -18,9 +19,9 @@ class StudentProfileScreen extends StatefulWidget {
 class _StudentProfileScreenState extends State<StudentProfileScreen> {
   late Future<StudentProfile> _profileFuture;
 
-  File? _pickedImage; // Ảnh mới chọn từ gallery
-  String? _networkImageUrl; // Ảnh hiện tại trên server
-  bool _isUploading = false; // Trạng thái đang tải lên
+  File? _pickedImage;
+  String? _networkImageUrl;
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -28,12 +29,11 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
     _profileFuture = StudentProfileService.getProfile();
   }
 
-  // Hàm chọn ảnh
   Future<void> _pickImage() async {
     try {
       final pickedFile = await ImagePicker().pickImage(
         source: ImageSource.gallery,
-        imageQuality: 80, // Nén ảnh
+        imageQuality: 80,
       );
       if (pickedFile != null) {
         setState(() {
@@ -47,7 +47,6 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
     }
   }
 
-  // Hàm tải ảnh lên
   Future<void> _uploadImage() async {
     if (_pickedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -59,15 +58,15 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
     setState(() => _isUploading = true);
 
     try {
+      // Service trả về URL tương đối (VD: /storage/...)
       final newUrl = await StudentProfileService.uploadFaceImage(_pickedImage!);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cập nhật ảnh thành công!'), backgroundColor: Colors.green),
       );
 
-      // Cập nhật UI
       setState(() {
-        _networkImageUrl = newUrl; // Hiển thị ảnh mới từ server
+        _networkImageUrl = newUrl; // Lưu URL tương đối
         _pickedImage = null; // Xóa ảnh preview
       });
 
@@ -95,7 +94,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           },
         ),
         title: const Text(
-          'Thông tin các nhân',
+          'Danh sách lớp học phần',
           style: TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.bold,
@@ -111,8 +110,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             padding: const EdgeInsets.only(right: 16.0),
             child: CircleAvatar(
               radius: 18,
-              backgroundImage: NetworkImage('https://picsum.photos/50/50'),
-            ),
+              backgroundImage: NetworkImage('https://picsum.photos/50/50'),            ),
           ),
         ],
       ),
@@ -130,7 +128,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           }
 
           final profile = snapshot.data!;
-          // Gán ảnh từ server (chỉ 1 lần)
+          // Gán ảnh từ server (chỉ 1 lần khi _networkImageUrl chưa được set)
           if (_networkImageUrl == null && _pickedImage == null) {
             _networkImageUrl = profile.imageUrl;
           }
@@ -138,27 +136,27 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           return ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
-              // ===== PHẦN TẢI ẢNH =====
+              // ===== PHẦN TẢI ẢNH (ĐÃ SỬA) =====
               Center(
                 child: Stack(
                   children: [
-                    // Hiển thị ảnh
                     CircleAvatar(
                       radius: 60,
                       backgroundColor: Colors.grey[200],
-                      // Ưu tiên hiển thị ảnh mới chọn (preview)
+
+                      // --- 2. SỬA LẠI LOGIC HIỂN THỊ ẢNH ---
                       backgroundImage: _pickedImage != null
-                          ? FileImage(_pickedImage!)
+                          ? FileImage(_pickedImage!) // 1. Ưu tiên ảnh preview
                           : (_networkImageUrl != null
-                      // Thêm 'http://' + IP_MAY_CHU
+                      // 2. Ghép IP vào URL tương đối
                           ? NetworkImage('http://$IP_MAY_CHU$_networkImageUrl')
                           : null) as ImageProvider?,
-                      // Icon fallback
+                      // -------------------------------------
+
                       child: (_pickedImage == null && _networkImageUrl == null)
                           ? Icon(Icons.person, size: 60, color: Colors.grey[400])
                           : null,
                     ),
-                    // Nút sửa
                     Positioned(
                       bottom: 0,
                       right: 0,
@@ -166,7 +164,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         color: Colors.blue,
                         shape: const CircleBorder(),
                         child: InkWell(
-                          onTap: _pickImage, // Gọi hàm chọn ảnh
+                          onTap: _pickImage,
                           customBorder: const CircleBorder(),
                           child: const Padding(
                             padding: EdgeInsets.all(8.0),
@@ -179,7 +177,6 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 ),
               ),
 
-              // Nút Tải lên (chỉ hiển thị nếu đã chọn ảnh mới)
               if (_pickedImage != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 16.0),
@@ -205,9 +202,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
       ),
       bottomNavigationBar: BottomTabNav(
         currentIndex: 1, // Giả sử tab 'Cá nhân' là index 1
-        onTap: (index) {
-          // TODO: Thêm logic điều hướng
-        },
+        onTap: (index) {},
       ),
     );
   }

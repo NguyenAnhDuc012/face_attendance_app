@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../layouts/bottom_tab_nav.dart';
 import '../model/session_detail.dart';
 import '../services/session_service.dart';
+import 'qr_code_screen.dart';
 
 class SessionDetailScreen extends StatefulWidget {
   final int sessionId;
@@ -39,6 +40,8 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
   // kết thúc
   bool _isEnding = false;
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -48,33 +51,47 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
 
   // Hàm gọi API bắt đầu
   Future<void> _startSession() async {
-    setState(() => _isStarting = true);
+    setState(() => _isLoading = true);
+
+    // 1. Lấy dữ liệu (để truyền sang màn hình QR)
+    final sessionData = await _sessionDetailFuture;
 
     try {
-      await SessionService.startAttendance(
+      // 2. Gọi service (giờ nó trả về String?)
+      final String? qrToken = await SessionService.startAttendance(
         sessionId: widget.sessionId,
         mode: _selectedMode,
         duration: _selectedDuration,
       );
 
-      // Nếu thành công, hiển thị thông báo
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã bắt đầu buổi điểm danh!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // 3. KIỂM TRA: Nếu là chế độ QR, điều hướng
+        if (qrToken != null) {
+          Navigator.pushReplacement( // Dùng Replacement để thay thế màn hình này
+            context,
+            MaterialPageRoute(
+              builder: (context) => QrCodeScreen(
+                qrToken: qrToken,
+                sessionDetail: sessionData, // Truyền thông tin buổi học
+                durationMinutes: _selectedDuration, // Truyền thời gian
+              ),
+            ),
+          );
+        } else {
+          // 4. Nếu là chế độ Thủ công, chỉ refresh
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Đã bắt đầu điểm danh (Thủ công)!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Tải lại (sẽ thấy trạng thái 'active')
+          setState(() {
+            _sessionDetailFuture = SessionService.getSessionDetails(widget.sessionId);
+          });
+        }
       }
-
-      // Tải lại dữ liệu (để cập nhật trạng thái sang 'active')
-      setState(() {
-        _sessionDetailFuture = SessionService.getSessionDetails(
-          widget.sessionId,
-        );
-      });
     } catch (e) {
-      // Bắt lỗi và hiển thị
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -85,7 +102,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
       }
     } finally {
       if (mounted) {
-        setState(() => _isStarting = false);
+        setState(() => _isLoading = false);
       }
     }
   }
@@ -423,7 +440,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 // Vô hiệu hóa nút khi đang tải
-                onPressed: _isStarting ? null : _startSession,
+                onPressed: _isLoading ? null : _startSession,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
@@ -432,7 +449,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                 ),
-                child: _isStarting
+                child: _isLoading
                     ? const SizedBox(
                         width: 20,
                         height: 20,

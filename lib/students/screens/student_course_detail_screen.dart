@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../model/student_course_session.dart';
 import '../services/student_course_service.dart';
 import '../layouts/bottom_tab_nav.dart';
+import 'student_attendance_screen.dart';
 import 'student_edit_attendance_screen.dart';
 
 
@@ -308,15 +309,20 @@ class _StudentCourseDetailScreenState extends State<StudentCourseDetailScreen>
                           if (didUpdate == true) {
                             _refreshData();
                           }
-                        } else {
-                          // Chế độ QR (chưa làm)
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Mở camera để quét QR (chưa hỗ trợ)'),
-                              backgroundColor: Colors.indigo,
+                        } else if (session.attendanceMode == 'face_recognition_qr') {
+                          // 3. ĐI ĐẾN MÀN HÌNH QUÉT QR + CAMERA MỚI
+                          final bool? didAttend = await Navigator.push<bool>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StudentAttendanceScreen(
+                                session: session, // Truyền cả object session
+                              ),
                             ),
-
                           );
+                          // 4. Nếu điểm danh thành công, tải lại list
+                          if (didAttend == true) {
+                            _refreshData();
+                          }
                         }
                       } : null, // Vô hiệu hóa nút
                       style: ElevatedButton.styleFrom(

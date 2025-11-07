@@ -52,4 +52,52 @@ class StudentAttendanceService {
       throw Exception('Lỗi không xác định: $e');
     }
   }
+
+  // ===== API MỚI: GỬI QR + ẢNH MẶT =====
+  static Future<void> submitFaceAttendance({
+    required int sessionId,
+    required String qrToken,
+    required File faceImage, // Ảnh tự sướng
+  }) async {
+    final token = await _getToken();
+    if (token == null) throw Exception('Chưa đăng nhập.');
+
+    final url = Uri.parse('$API_BASE_URL/session/$sessionId/attend-face');
+    try {
+      var request = http.MultipartRequest('POST', url);
+
+      // Thêm header
+      request.headers['Accept'] = 'application/json';
+      request.headers['Authorization'] = 'Bearer $token';
+
+      // Thêm các trường (fields)
+      request.fields['qr_token'] = qrToken;
+
+      // Thêm file
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'live_image', // Key phải khớp với API (Laravel)
+          faceImage.path,
+        ),
+      );
+
+      // Gửi request
+      var streamedResponse = await request.send().timeout(const Duration(seconds: 30));
+      var response = await http.Response.fromStream(streamedResponse);
+      final body = jsonDecode(response.body);
+
+      if (response.statusCode != 200 || body['status'] != true) {
+        throw Exception(body['message'] ?? 'Lỗi không xác định');
+      }
+      // Thành công
+
+    } on TimeoutException {
+      throw Exception('Hết thời gian chờ. Máy chủ phản hồi quá chậm.');
+    } on SocketException {
+      throw Exception('Lỗi mạng. Kiểm tra kết nối.');
+    } catch (e) {
+      throw Exception('Lỗi: $e');
+    }
+  }
+  
 }

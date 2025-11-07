@@ -52,7 +52,7 @@ class SessionService {
   }
 
   // API 2: Bắt đầu buổi điểm danh
-  static Future<void> startAttendance({
+  static Future<String?> startAttendance({
     required int sessionId,
     required String mode,
     required int duration,
@@ -73,19 +73,23 @@ class SessionService {
           'attendance_mode': mode,
           'duration_minutes': duration,
         }),
-      ).timeout(const Duration(seconds: 15)); // Cho 15s vì có bulk insert
+      ).timeout(const Duration(seconds: 15));
 
       final body = jsonDecode(response.body);
 
-      if (response.statusCode != 200) {
+      if (response.statusCode != 200 || body['status'] != true) {
         throw Exception(body['message'] ?? 'Lỗi không xác định từ máy chủ');
       }
 
-      // Thành công (statusCode 200)
-      if (body['status'] != true) {
-        throw Exception(body['message'] ?? 'Máy chủ báo lỗi.');
+      // 2. Lấy dữ liệu trả về từ API
+      final responseData = body['data'];
+
+      // 3. Kiểm tra xem API có trả về qr_token không
+      if (responseData != null && responseData['qr_token'] != null) {
+        return responseData['qr_token'] as String; // Trả về token
       }
-      // (Không cần trả về gì nếu thành công)
+
+      return null; // Trả về null nếu là chế độ 'manual'
 
     } on TimeoutException {
       throw Exception('Hết thời gian chờ. Máy chủ phản hồi quá chậm.');
