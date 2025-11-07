@@ -109,7 +109,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen>
             ),
           ],
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.red,
         elevation: 1.0,
         actions: [
           Padding(
