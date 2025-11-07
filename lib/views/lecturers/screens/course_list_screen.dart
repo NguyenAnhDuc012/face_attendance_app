@@ -54,7 +54,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
           ),
         ),
         centerTitle: false,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.red,
         elevation: 1.0,
         actions: [
           // Avatar
