@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Đảm bảo đường dẫn này đúng
 import '../model/lecturer.dart';
 
-const String IP_MAY_CHU = '192.168.1.164:8000';
+const String IP_MAY_CHU = '160.22.161.111';
 const String API_BASE_URL = 'http://$IP_MAY_CHU/api/lecturer';
 
 class AuthService {

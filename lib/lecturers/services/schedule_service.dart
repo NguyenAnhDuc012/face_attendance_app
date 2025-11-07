@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../model/today_schedule.dart';
 
 // Dùng chung IP
-const String IP_MAY_CHU = '192.168.1.164:8000';
+const String IP_MAY_CHU = '160.22.161.111';
 const String API_BASE_URL = 'http://$IP_MAY_CHU/api/lecturer';
 
 class ScheduleService {

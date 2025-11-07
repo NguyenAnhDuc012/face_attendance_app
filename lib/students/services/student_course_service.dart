@@ -8,7 +8,7 @@ import '../model/student_course_group.dart';
 import '../model/student_course_session.dart';
 
 // IP máy chủ
-const String IP_MAY_CHU = '192.168.1.164:8000';
+const String IP_MAY_CHU = '160.22.161.111';
 // API trỏ đến route của student
 const String API_BASE_URL = 'http://$IP_MAY_CHU/api/student';
 

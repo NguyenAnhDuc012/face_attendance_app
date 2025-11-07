@@ -7,9 +7,6 @@ import '../main_student.dart';
 import '../model/student_course_session.dart';
 import '../services/student_attendance_service.dart';
 
-// (Bạn cần khởi tạo camera trong file main.dart)
-// late List<CameraDescription> cameras;
-
 class StudentAttendanceScreen extends StatefulWidget {
   final StudentCourseSession session;
   const StudentAttendanceScreen({super.key, required this.session});
@@ -20,7 +17,6 @@ class StudentAttendanceScreen extends StatefulWidget {
 }
 
 class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
-  // Trạng thái: 'scanning_qr', 'taking_photo', 'submitting'
   String _currentState = 'scanning_qr';
 
   // Cho QR
@@ -40,10 +36,7 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
   @override
   void initState() {
     super.initState();
-    // Nếu là QR, bắt đầu camera QR
-    if (_currentState == 'scanning_qr') {
-      // (Bạn có thể bỏ qua bước này nếu bạn dùng package scanner khác)
-    }
+    // (QRView sẽ tự khởi động camera)
   }
 
   @override
@@ -53,18 +46,17 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
     super.dispose();
   }
 
-  // Khởi tạo camera (gọi khi chuyển sang bước chụp ảnh)
   Future<void> _initializeCamera() async {
     // Tìm camera TRƯỚC
     final frontCamera = cameras.firstWhere(
           (cam) => cam.lensDirection == CameraLensDirection.front,
-      orElse: () => cameras.first, // Lấy camera đầu tiên nếu không có camera trước
+      orElse: () => cameras.first,
     );
 
     _cameraController = CameraController(
       frontCamera,
       ResolutionPreset.medium,
-      enableAudio: false, // Tắt audio
+      enableAudio: false,
     );
 
     try {
@@ -75,7 +67,6 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
       });
     } catch (e) {
       print("Lỗi mở camera: $e");
-      // Xử lý lỗi (ví dụ: quay lại)
     }
   }
 
@@ -84,13 +75,22 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
     setState(() {
       _qrController = controller;
     });
+    // Nghe luồng dữ liệu quét
     controller.scannedDataStream.listen((scanData) {
       controller.pauseCamera(); // Dừng quét
+
       setState(() {
         _scannedToken = scanData.code;
         _currentState = 'taking_photo'; // Chuyển sang bước chụp ảnh
         _loadingMessage = 'Đang mở camera...';
-        _initializeCamera(); // Mở camera
+        _isLoading = true; // Hiển thị loading
+      });
+
+      // Mở camera (có thể mất 1-2 giây)
+      _initializeCamera().then((_) {
+        setState(() {
+          _isLoading = false; // Tắt loading khi camera sẵn sàng
+        });
       });
     });
   }
@@ -102,7 +102,7 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
       final image = await _cameraController!.takePicture();
       setState(() {
         _capturedImage = image;
-        _currentState = 'submitting';
+        _currentState = 'submitting'; // Đổi trạng thái
         _submitAttendance(); // Tự động nộp
       });
     } catch (e) {
@@ -110,7 +110,7 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
     }
   }
 
-  // Xử lý khi nộp (QR + Ảnh)
+  // HÀM CHÍNH: GỌI SERVICE ĐỂ ĐIỂM DANH
   Future<void> _submitAttendance() async {
     if (_scannedToken == null || _capturedImage == null) return;
 
@@ -134,15 +134,21 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
       }
 
     } catch (e) {
+      // BẮT LỖI TỪ LARAVEL/PYTHON (VÍ DỤ: KHUÔN MẶT KHÔNG KHỚP)
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', '')), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4), // Cho 4 giây
+          ),
         );
       }
       // Cho phép thử lại
       setState(() {
         _isLoading = false;
         _currentState = 'taking_photo'; // Quay lại bước chụp ảnh
+        _capturedImage = null; // Xóa ảnh cũ
       });
     }
   }
@@ -159,6 +165,7 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
 
   // Hiển thị view tùy theo trạng thái
   Widget _buildCurrentView() {
+    // Luôn ưu tiên hiển thị loading
     if (_isLoading) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -197,17 +204,11 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
     }
 
     if (_currentState == 'taking_photo') {
-      // Nếu camera CHƯA SẴN SÀNG (đang tải)
-      if (!_isCameraReady || _cameraController == null) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text("Đang mở camera...", style: TextStyle(fontSize: 16)),
-          ],
-        );
+      // (Trạng thái camera loading đã được _isLoading xử lý)
+      if (!_isCameraReady) {
+        return const Center(child: Text('Không thể khởi động camera.'));
       }
+
       return Column(
         children: [
           const Padding(
@@ -240,6 +241,6 @@ class _StudentAttendanceScreenState extends State<StudentAttendanceScreen> {
       );
     }
 
-    return Container(); // Trạng thái 'submitting' đã được xử lý bởi _isLoading
+    return Container(); // Trạng thái 'submitting' đã được _isLoading xử lý
   }
 }

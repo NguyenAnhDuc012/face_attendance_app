@@ -2,7 +2,7 @@ import '../models/Course.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-const String API_BASE_URL = 'http://127.0.0.1:8000/api';
+const String API_BASE_URL = 'http://160.22.161.111/api';
 
 class CourseService {
   Future<Map<String, dynamic>> fetchCourses({int page = 1}) async {
