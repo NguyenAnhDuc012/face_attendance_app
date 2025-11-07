@@ -74,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
         SnackBar(
           // Hiển thị thông báo lỗi từ Exception
           content: Text(e.toString().replaceFirst('Exception: ', '')),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.blue,
         ),
       );
     } finally {
