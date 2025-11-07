@@ -73,7 +73,7 @@ class _EditAttendanceScreenState extends State<EditAttendanceScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString().replaceFirst('Exception: ', '')),
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.red,
           ),
         );
       }

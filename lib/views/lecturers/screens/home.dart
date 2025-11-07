@@ -77,7 +77,7 @@ class _HomeBodyState extends State<HomeBody> {
         return Colors.green; // Kết thúc
       case 'pending':
       default:
-        return Colors.orange; // Chưa diễn ra
+        return Colors.red; // Chưa diễn ra
     }
   }
 
