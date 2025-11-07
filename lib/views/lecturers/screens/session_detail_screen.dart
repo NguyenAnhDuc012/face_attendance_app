@@ -213,7 +213,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'Lỗi tải dữ liệu: ${snapshot.error.toString().replaceFirst('Exception: ', '')}',
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: Colors.black),
                   textAlign: TextAlign.center,
                 ),
               ),
